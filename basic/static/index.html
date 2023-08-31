@@ -22,14 +22,6 @@
 </head>
 <body>
   <canvas id="canvas0"></canvas>
-  <script type="module">
-    import init, { run, print_self } from "./pkg/my.js";
-    await init();
-    await run();
-    addEventListener("click", (ev) => {
-      console.log("clicked!");
-      print_self();
-    })
-  </script>
+  <script type="module" src="index.js"></script>
 </body>
 </html>

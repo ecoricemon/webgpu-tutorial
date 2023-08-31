@@ -5,6 +5,8 @@ use winit::{
     dpi::PhysicalSize, event_loop::EventLoop, platform::web::WindowBuilderExtWebSys,
     window::WindowBuilder,
 };
+mod camera;
+use camera::PerspectiveCamera;
 
 macro_rules! log {
     ($($t:tt)*) => {
@@ -66,10 +68,12 @@ const INDICES: &[u32] = &[0, 1, 2, 2, 1, 3]; // CCW, quad
 #[repr(C)]
 #[derive(Clone, Copy, bytemuck::Pod, bytemuck::Zeroable, Debug, Default)]
 struct UniformData {
+    view_proj: [[f32; 4]; 4],
+    mouse_move: [f32; 2],
+    mouse_click: [f32; 2],
     resolution: [f32; 2],
-    mouse: [f32; 2],
     time: f32,
-    _padding: f32,
+    _padding: [f32; 1],
 }
 
 #[derive(Debug)]
@@ -84,6 +88,7 @@ struct State {
     vertex_buffer: wgpu::Buffer,
     index_buffer: wgpu::Buffer,
     index_num: u32,
+    camera: PerspectiveCamera,
     uniform_data: UniformData,
     uniform_buffer: wgpu::Buffer,
     uniform_bind_group: wgpu::BindGroup,
@@ -126,10 +131,14 @@ impl State {
         let vertex_buffer = State::create_vertex_buffer(&device, bytemuck::cast_slice(VERTICES));
         // wgpu index buffer
         let index_buffer = State::create_index_buffer(&device, bytemuck::cast_slice(INDICES));
+        // camera
+        let camera = PerspectiveCamera::new();
         // wgpu uniform buffer
         let uniform_data = UniformData {
+            view_proj: camera.to_view_proj(),
             resolution: [canvas.width() as f32, canvas.height() as f32],
-            mouse: [std::f32::MIN, std::f32::MIN],
+            mouse_move: [std::f32::MIN, std::f32::MIN],
+            mouse_click: [std::f32::MIN, std::f32::MIN],
             ..Default::default()
         };
         let (uniform_buffer, uniform_layout, uniform_bind_group) =
@@ -157,6 +166,7 @@ impl State {
             vertex_buffer,
             index_buffer,
             index_num: INDICES.len() as u32,
+            camera,
             uniform_data,
             uniform_buffer,
             uniform_bind_group,
@@ -420,7 +430,12 @@ impl State {
 
     fn mousemove(&mut self, event: web_sys::MouseEvent) {
         // Update uniform data
-        self.uniform_data.mouse = [event.client_x() as f32, event.client_y() as f32];
+        self.uniform_data.mouse_move = [event.client_x() as f32, event.client_y() as f32];
+    }
+
+    fn click(&mut self, event: web_sys::MouseEvent) {
+        // Update uniform data
+        self.uniform_data.mouse_click = [event.client_x() as f32, event.client_y() as f32];
     }
 
     fn render(&mut self, time: f32) {
@@ -448,9 +463,9 @@ impl State {
                     resolve_target: None,
                     ops: wgpu::Operations {
                         load: wgpu::LoadOp::Clear(wgpu::Color {
-                            r: 0.2,
-                            g: 0.2,
-                            b: 0.2,
+                            r: 0.0,
+                            g: 0.0,
+                            b: 0.0,
                             a: 1.0,
                         }),
                         store: true,
@@ -471,6 +486,16 @@ impl State {
     fn print(&self) {
         log!("{self:?}");
     }
+
+    fn set_camera(
+        &mut self,
+        eye: Option<(f32, f32, f32)>,
+        center: Option<(f32, f32, f32)>,
+        up: Option<(f32, f32, f32)>,
+    ) {
+        self.camera.set_view(eye, center, up);
+        self.uniform_data.view_proj = self.camera.to_view_proj();
+    }
 }
 
 #[wasm_bindgen(start)]
@@ -488,6 +513,9 @@ pub async fn run() {
         state.add_event_listener_with_mouseevent("mousemove", |event: web_sys::MouseEvent| {
             STATE.as_mut().unwrap_unchecked().mousemove(event)
         });
+        state.add_event_listener_with_mouseevent("click", |event: web_sys::MouseEvent| {
+            STATE.as_mut().unwrap_unchecked().click(event)
+        });
         state.request_animation_frame();
     };
 }
@@ -496,5 +524,16 @@ pub async fn run() {
 pub fn print_self() {
     unsafe {
         STATE.as_ref().unwrap_unchecked().print();
+    }
+}
+
+#[wasm_bindgen]
+pub fn set_camera(eye_x: f32, eye_y: f32, eye_z: f32, center_x: f32, center_y: f32, center_z: f32) {
+    unsafe {
+        STATE.as_mut().unwrap_unchecked().set_camera(
+            Some((eye_x, eye_y, eye_z)),
+            Some((center_x, center_y, center_z)),
+            None,
+        );
     }
 }
