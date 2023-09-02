@@ -158,7 +158,7 @@ export default class GUIHelper {
   }
 
   /**
-   * Close all folders except for the root
+   * Close all folders
    * @returns {GUIHelper} Instance for method chaining.
    */
   static closeAll() {
@@ -170,7 +170,6 @@ export default class GUIHelper {
       gui.children.forEach(child => helper(child));
     };
     helper(instance.gui);
-    instance.gui.open();
     return instance;
   }
 

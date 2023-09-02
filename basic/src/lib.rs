@@ -1,4 +1,3 @@
-use std::mem;
 use wasm_bindgen::prelude::*;
 use wgpu::util::DeviceExt;
 use winit::{
@@ -7,63 +6,15 @@ use winit::{
 };
 mod camera;
 use camera::PerspectiveCamera;
+mod primitive;
+use primitive::*;
+mod color;
 
 macro_rules! log {
     ($($t:tt)*) => {
         web_sys::console::log_1(&format!($($t)*).into());
     }
 }
-
-#[repr(C)]
-#[derive(Clone, Copy, bytemuck::Pod, bytemuck::Zeroable)]
-struct Vertex {
-    pos: [f32; 3],
-    color: [f32; 3],
-}
-
-impl Vertex {
-    fn layout() -> wgpu::VertexBufferLayout<'static> {
-        wgpu::VertexBufferLayout {
-            array_stride: mem::size_of::<Vertex>() as wgpu::BufferAddress,
-            step_mode: wgpu::VertexStepMode::Vertex,
-            attributes: &[
-                wgpu::VertexAttribute {
-                    // pos
-                    offset: 0,
-                    shader_location: 0,
-                    format: wgpu::VertexFormat::Float32x3,
-                },
-                wgpu::VertexAttribute {
-                    // color
-                    offset: mem::size_of::<[f32; 3]>() as wgpu::BufferAddress,
-                    shader_location: 1,
-                    format: wgpu::VertexFormat::Float32x3,
-                },
-            ],
-        }
-    }
-}
-
-const VERTICES: &[Vertex] = &[
-    Vertex {
-        pos: [-1.0, 1.0, 0.0],  // Top-left
-        color: [1.0, 0.0, 1.0], // Magenta
-    },
-    Vertex {
-        pos: [-1.0, -1.0, 0.0], // Bottom-left
-        color: [0.0, 0.0, 1.0], // Blue
-    },
-    Vertex {
-        pos: [1.0, 1.0, 0.0],   // Top-right
-        color: [1.0, 1.0, 0.0], // Yellow
-    },
-    Vertex {
-        pos: [1.0, -1.0, 0.0],  // Bottom-right
-        color: [0.0, 1.0, 0.0], // Green
-    },
-];
-
-const INDICES: &[u32] = &[0, 1, 2, 2, 1, 3]; // CCW, quad
 
 #[repr(C)]
 #[derive(Clone, Copy, bytemuck::Pod, bytemuck::Zeroable, Debug, Default)]
@@ -100,6 +51,13 @@ static mut STATE: Option<State> = None;
 
 impl State {
     async fn new() -> Self {
+        // Our shapes
+        let (vertices, indices) = shape::make_square(
+            Vertex::new(&[-1.0, 1.0, 0.0], color::MAGENTA),
+            Vertex::new(&[-1.0, -1.0, 0.0], color::BLUE),
+            Vertex::new(&[1.0, 1.0, 0.0], color::YELLOW),
+            Vertex::new(&[1.0, -1.0, 0.0], color::GREEN),
+        );
         // window
         let window = web_sys::window().expect_throw("Failed to get the window");
         // canvas
@@ -128,11 +86,13 @@ impl State {
             canvas.height(),
         );
         // wgpu vertex buffer
-        let vertex_buffer = State::create_vertex_buffer(&device, bytemuck::cast_slice(VERTICES));
+        let vertex_buffer = State::create_vertex_buffer(&device, bytemuck::cast_slice(&vertices));
         // wgpu index buffer
-        let index_buffer = State::create_index_buffer(&device, bytemuck::cast_slice(INDICES));
+        let index_buffer = State::create_index_buffer(&device, bytemuck::cast_slice(&indices));
         // camera
-        let camera = PerspectiveCamera::new();
+        let mut camera = PerspectiveCamera::new();
+        let aspect = canvas.width() as f32 / canvas.height() as f32;
+        camera.set_proj(None, Some(aspect), None, None);
         // wgpu uniform buffer
         let uniform_data = UniformData {
             view_proj: camera.to_view_proj(),
@@ -165,7 +125,7 @@ impl State {
             surface_config,
             vertex_buffer,
             index_buffer,
-            index_num: INDICES.len() as u32,
+            index_num: indices.len() as u32,
             camera,
             uniform_data,
             uniform_buffer,
@@ -424,18 +384,24 @@ impl State {
             // Update uniform data
             self.uniform_data.resolution = [new_width as f32, new_height as f32];
 
+            // Update camera aspect ratio
+            let aspect = new_width as f32 / new_height as f32;
+            self.camera.set_proj(None, Some(aspect), None, None);
+
             log!("Resized: ({}, {})", new_width, new_height);
         }
     }
 
     fn mousemove(&mut self, event: web_sys::MouseEvent) {
         // Update uniform data
-        self.uniform_data.mouse_move = [event.client_x() as f32, event.client_y() as f32];
+        let br = self.canvas.get_bounding_client_rect();
+        self.uniform_data.mouse_move = [event.client_x() as f32 - br.x() as f32, event.client_y() as f32 - br.y() as f32];
     }
 
     fn click(&mut self, event: web_sys::MouseEvent) {
         // Update uniform data
-        self.uniform_data.mouse_click = [event.client_x() as f32, event.client_y() as f32];
+        let br = self.canvas.get_bounding_client_rect();
+        self.uniform_data.mouse_click = [event.client_x() as f32 - br.x() as f32, event.client_y() as f32 - br.y() as f32];
     }
 
     fn render(&mut self, time: f32) {

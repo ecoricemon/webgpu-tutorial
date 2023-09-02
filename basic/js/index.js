@@ -45,3 +45,5 @@ GUIHelper
   .add(camera_center, "z", -0.5, 2)
   .onChange(_set_camera)
   ;
+GUIHelper
+  .closeAll();
