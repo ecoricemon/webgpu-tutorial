@@ -1,3 +1,5 @@
+#![allow(unused)]
+
 use wasm_bindgen::prelude::*;
 use wgpu::util::DeviceExt;
 use winit::{
@@ -6,9 +8,10 @@ use winit::{
 };
 mod camera;
 use camera::PerspectiveCamera;
-mod primitive;
+pub mod primitive;
 use primitive::*;
-mod color;
+mod constant;
+use constant::color;
 
 macro_rules! log {
     ($($t:tt)*) => {
@@ -51,13 +54,19 @@ static mut STATE: Option<State> = None;
 
 impl State {
     async fn new() -> Self {
-        // Our shapes
-        let (vertices, indices) = shape::make_square(
-            Vertex::new(&[-1.0, 1.0, 0.0], color::MAGENTA),
-            Vertex::new(&[-1.0, -1.0, 0.0], color::BLUE),
-            Vertex::new(&[1.0, 1.0, 0.0], color::YELLOW),
-            Vertex::new(&[1.0, -1.0, 0.0], color::GREEN),
-        );
+        // Square
+        // let (vertices, indices) = shape::make_square(
+        //     Vertex::new(Vec4::_from(&[-1.0, -1.0]), color::BLUE, None),
+        //     Vertex::new(Vec4::_from(&[1.0, -1.0]), color::GREEN, None),
+        //     Vertex::new(Vec4::_from(&[-1.0, 1.0]), color::MAGENTA, None),
+        //     Vertex::new(Vec4::_from(&[1.0, 1.0]), color::YELLOW, None),
+        // );
+        // Circle
+        // let (vertices, indices) = shape::make_circle(
+        //     Vertex::new(Vec4::new(), color::BLUE, None), 1.0, 32
+        // );
+        // Cube
+        let (vertices, indices) = shape::make_cube([0.0, 0.0, -1.0, 1.0], 2.0, 2.0, 2.0, None);
         // window
         let window = web_sys::window().expect_throw("Failed to get the window");
         // canvas
@@ -395,13 +404,19 @@ impl State {
     fn mousemove(&mut self, event: web_sys::MouseEvent) {
         // Update uniform data
         let br = self.canvas.get_bounding_client_rect();
-        self.uniform_data.mouse_move = [event.client_x() as f32 - br.x() as f32, event.client_y() as f32 - br.y() as f32];
+        self.uniform_data.mouse_move = [
+            event.client_x() as f32 - br.x() as f32,
+            event.client_y() as f32 - br.y() as f32,
+        ];
     }
 
     fn click(&mut self, event: web_sys::MouseEvent) {
         // Update uniform data
         let br = self.canvas.get_bounding_client_rect();
-        self.uniform_data.mouse_click = [event.client_x() as f32 - br.x() as f32, event.client_y() as f32 - br.y() as f32];
+        self.uniform_data.mouse_click = [
+            event.client_x() as f32 - br.x() as f32,
+            event.client_y() as f32 - br.y() as f32,
+        ];
     }
 
     fn render(&mut self, time: f32) {
@@ -465,7 +480,7 @@ impl State {
 }
 
 #[wasm_bindgen(start)]
-pub fn main() {
+pub fn main_js() {
     std::panic::set_hook(Box::new(console_error_panic_hook::hook));
     console_log::init_with_level(log::Level::Warn).expect("Couldn't initialize logger");
 }

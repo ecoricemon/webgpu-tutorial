@@ -1,11 +1,13 @@
 [package]
 name = "basic"
 description = "wgpu + webpack base"
+repository = "https://github.com/ecoricemon/webgpu-tutorial"
+license = "Apache-2.0, MIT"
 version = "0.1.0"
 edition = "2021"
 
 [lib]
-crate-type = ["cdylib"]
+crate-type = ["cdylib", "rlib"]
 
 [profile.release]
 # This makes the compiled code faster and smaller, but it makes compiling slower,
@@ -15,9 +17,6 @@ lto = true
 [dependencies]
 wasm-bindgen = "0.2.87"
 wasm-bindgen-futures = "0.4.37"
-console_error_panic_hook = "0.1.7"
-console_log = "1.0.0"
-log = "0.4.19"
 wgpu = "0.16.2"
 web-sys = { version = "0.3.64", features = [
     "Window",
@@ -31,3 +30,11 @@ bytemuck = { version = "1.13.1", features = [
     "derive"
 ]}
 cgmath = "0.18"
+js-sys = "0.3.64"
+console_error_panic_hook = "0.1.7"
+console_log = "1.0.0"
+log = "0.4.19"
+
+# These crates are used for running unit tests.
+[dev-dependencies]
+wasm-bindgen-test = "0.3.37"

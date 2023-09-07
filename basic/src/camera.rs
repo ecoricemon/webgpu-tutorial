@@ -1,6 +1,5 @@
 use cgmath;
 
-#[allow(unused)]
 #[derive(Debug)]
 pub struct PerspectiveCamera {
     eye: cgmath::Point3<f32>,
@@ -53,7 +52,7 @@ impl PerspectiveCamera {
         fovy: Option<f32>,
         aspect: Option<f32>,
         near: Option<f32>,
-        far: Option<f32>
+        far: Option<f32>,
     ) {
         match fovy {
             Some(x) => self.fovy = cgmath::Deg(x),

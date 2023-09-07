@@ -1,11 +1,15 @@
 {
-  "author": "You <you@example.com>",
-  "name": "rust-webpack-template",
+  "author": "ecoricemon",
+  "name": "basic",
   "version": "0.1.0",
   "scripts": {
-    "build": "rimraf dist pkg && webpack",
-    "start": "webpack serve",
-    "test": "cargo test && wasm-pack test --headless"
+    "build": "rimraf dist pkg && webpack --config webpack.dev.js",
+    "start": "webpack serve --config webpack.dev.js",
+    "build-release": "rimraf dist pkg && webpack --config webpack.prod.js",
+    "test": "wasm-pack test --chrome --headless",
+    "test-chrome": "wasm-pack test --chrome --headless",
+    "test-firefox": "wasm-pack test --firefox --headless",
+    "test-safari": "wasm-pack test --safari --headless"
   },
   "dependencies": {
     "lil-gui": "^0.18.2"
@@ -16,6 +20,7 @@
     "rimraf": "^5.0.1",
     "webpack": "^5.88.2",
     "webpack-cli": "^5.1.4",
-    "webpack-dev-server": "^4.15.1"
+    "webpack-dev-server": "^4.15.1",
+    "webpack-merge": "^5.9.0"
   }
 }
