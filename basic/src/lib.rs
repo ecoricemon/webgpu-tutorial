@@ -7,17 +7,13 @@ use winit::{
     window::WindowBuilder,
 };
 mod camera;
-use camera::PerspectiveCamera;
-pub mod primitive;
-use primitive::*;
 mod constant;
+pub mod primitive;
+#[macro_use]
+pub mod util;
+use camera::PerspectiveCamera;
 use constant::color;
-
-macro_rules! log {
-    ($($t:tt)*) => {
-        web_sys::console::log_1(&format!($($t)*).into());
-    }
-}
+use primitive::*;
 
 #[repr(C)]
 #[derive(Clone, Copy, bytemuck::Pod, bytemuck::Zeroable, Debug, Default)]
@@ -56,17 +52,19 @@ impl State {
     async fn new() -> Self {
         // Square
         // let (vertices, indices) = shape::make_square(
-        //     Vertex::new(Vec4::_from(&[-1.0, -1.0]), color::BLUE, None),
-        //     Vertex::new(Vec4::_from(&[1.0, -1.0]), color::GREEN, None),
-        //     Vertex::new(Vec4::_from(&[-1.0, 1.0]), color::MAGENTA, None),
-        //     Vertex::new(Vec4::_from(&[1.0, 1.0]), color::YELLOW, None),
+        //     Vertex::new(Position::_from(&[-1.0, -1.0]), color::BLUE, None),
+        //     Vertex::new(Position::_from(&[1.0, -1.0]), color::GREEN, None),
+        //     Vertex::new(Position::_from(&[-1.0, 1.0]), color::MAGENTA, None),
+        //     Vertex::new(Position::_from(&[1.0, 1.0]), color::YELLOW, None),
         // );
         // Circle
         // let (vertices, indices) = shape::make_circle(
-        //     Vertex::new(Vec4::new(), color::BLUE, None), 1.0, 32
+        //     Vertex::new(Position::_default(), color::BLUE, None), 1.0, 32∆
         // );
         // Cube
-        let (vertices, indices) = shape::make_cube([0.0, 0.0, -1.0, 1.0], 2.0, 2.0, 2.0, None);
+        // let (vertices, indices) = shape::make_cube([0.0, 0.0, -1.0, 1.0], 2.0, 2.0, 2.0, None);
+        // Sphere
+        let (mut vertices, indices) = shape::make_icosphere(0.5, 3, None);
         // window
         let window = web_sys::window().expect_throw("Failed to get the window");
         // canvas
