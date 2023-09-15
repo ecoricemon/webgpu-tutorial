@@ -1,5 +1,3 @@
-#![allow(unused)]
-
 use wasm_bindgen::prelude::*;
 use wgpu::util::DeviceExt;
 use winit::{
@@ -12,7 +10,6 @@ pub mod primitive;
 #[macro_use]
 pub mod util;
 use camera::PerspectiveCamera;
-use constant::color;
 use primitive::*;
 
 #[repr(C)]
@@ -24,6 +21,12 @@ struct UniformData {
     resolution: [f32; 2],
     time: f32,
     _padding: [f32; 1],
+}
+
+#[derive(Debug, Default)]
+struct FrameControl {
+    last_render_time: f32,
+    target_elapsed_msec: f32,
 }
 
 #[derive(Debug)]
@@ -44,6 +47,7 @@ struct State {
     uniform_bind_group: wgpu::BindGroup,
     render_pipeline: wgpu::RenderPipeline,
     animation_cb: Closure<dyn FnMut(f32)>,
+    frame_control: FrameControl,
 }
 
 static mut STATE: Option<State> = None;
@@ -52,19 +56,21 @@ impl State {
     async fn new() -> Self {
         // Square
         // let (vertices, indices) = shape::make_square(
-        //     Vertex::new(Position::_from(&[-1.0, -1.0]), color::BLUE, None),
-        //     Vertex::new(Position::_from(&[1.0, -1.0]), color::GREEN, None),
-        //     Vertex::new(Position::_from(&[-1.0, 1.0]), color::MAGENTA, None),
-        //     Vertex::new(Position::_from(&[1.0, 1.0]), color::YELLOW, None),
+        //     Vertex::new(Point::new(-1.0, -1.0, 0.0), constant::color::BLUE, None),
+        //     Vertex::new(Point::new(1.0, -1.0, 0.0), constant::color::GREEN, None),
+        //     Vertex::new(Point::new(-1.0, 1.0, 0.0), constant::color::MAGENTA, None),
+        //     Vertex::new(Point::new(1.0, 1.0, 0.0), constant::color::YELLOW, None),
         // );
         // Circle
         // let (vertices, indices) = shape::make_circle(
-        //     Vertex::new(Position::_default(), color::BLUE, None), 1.0, 32∆
+        //     Vertex::new(Point::default(), constant::color::BLUE, None),
+        //     1.0,
+        //     32,
         // );
         // Cube
-        // let (vertices, indices) = shape::make_cube([0.0, 0.0, -1.0, 1.0], 2.0, 2.0, 2.0, None);
+        // let (vertices, indices) = shape::make_cube(Point::new(0.0, 0.0, -1.0), 2.0, 2.0, 2.0, None);
         // Sphere
-        let (mut vertices, indices) = shape::make_icosphere(0.5, 3, None);
+        let (vertices, indices) = shape::make_icosphere(0.5, 3, None);
         // window
         let window = web_sys::window().expect_throw("Failed to get the window");
         // canvas
@@ -121,6 +127,11 @@ impl State {
         );
         // animation_loop
         let animation_cb = State::create_animation_loop();
+        // frame control
+        let frame_control = FrameControl {
+            // target_elapsed_msec: 1000.0,
+            ..Default::default()
+        };
 
         Self {
             window,
@@ -139,6 +150,7 @@ impl State {
             uniform_bind_group,
             render_pipeline,
             animation_cb,
+            frame_control,
         }
     }
 
@@ -343,8 +355,14 @@ impl State {
     fn create_animation_loop() -> Closure<dyn FnMut(f32)> {
         Closure::<dyn FnMut(f32)>::new(|time: f32| unsafe {
             let state = STATE.as_mut().unwrap_unchecked();
-            state.render(time);
             state.request_animation_frame();
+
+            let elapsed = time - state.frame_control.last_render_time;
+            if elapsed == 0.0 || elapsed < state.frame_control.target_elapsed_msec {
+                return;
+            }
+            state.render(time);
+            state.frame_control.last_render_time = time;
         })
     }
 

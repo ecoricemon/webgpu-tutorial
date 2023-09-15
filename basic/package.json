@@ -9,7 +9,8 @@
     "test": "wasm-pack test --chrome --headless",
     "test-chrome": "wasm-pack test --chrome --headless",
     "test-firefox": "wasm-pack test --firefox --headless",
-    "test-safari": "wasm-pack test --safari --headless"
+    "test-safari": "wasm-pack test --safari --headless",
+    "clean": "rimraf dist node_modules pkg target"
   },
   "dependencies": {
     "lil-gui": "^0.18.2"

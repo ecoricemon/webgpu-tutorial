@@ -24,13 +24,6 @@ fn transpose_arbitrary() {
     )
 }
 
-#[wasm_bindgen_test]
-fn normalize_arbitrary() {
-    let v: Vec4<f32> = [0.1, 0.2, 0.3, 1.0];
-    let l: f32 = v.iter().take(3).map(|x| x * x).sum::<f32>().sqrt();
-    assert_eq!(v.normalize(), [v[0] / l, v[1] / l, v[2] / l, 1.0]);
-}
-
 mod transform {
     use super::*;
     use basic::primitive::transform::*;
@@ -57,7 +50,7 @@ mod shape {
 
     #[wasm_bindgen_test]
     fn make_circle_returns_circle() {
-        let center: Vertex = Position::new3(1.0, 2.0, 3.0).into();
+        let center: Vertex = Point::new(1.0, 2.0, 3.0).into();
         let radius = 1.0;
         let vertices = 16;
         let res = make_circle(center, radius, vertices);
@@ -65,7 +58,7 @@ mod shape {
         assert!(res
             .0
             .iter()
-            .map(|v| v.pos.dist(&center.pos))
+            .map(|v| v.point.dist(center.point))
             .all(|d| (d - radius).abs() < EPS));
     }
 
@@ -79,28 +72,28 @@ mod shape {
             let e = (-1.0 - a) / 2.0; // (-1 - 1 / 5^0.5) / 2
             let f = c.sqrt(); // ((1 - 1 / 5^0.5) / 2)^0.5
             let mut expect = [
-                Position::new3(0.0, 1.0, 0.0),
-                Position::new3(b, a, 0.0),
-                Position::new3(c, a, -d),
-                Position::new3(e, a, -f),
-                Position::new3(e, a, f),
-                Position::new3(c, a, d),
-                Position::new3(-e, -a, -f),
-                Position::new3(-c, -a, -d),
-                Position::new3(-b, -a, 0.0),
-                Position::new3(-c, -a, d),
-                Position::new3(-e, -a, f),
-                Position::new3(0.0, -1.0, 0.0),
+                Point::new(0.0, 1.0, 0.0),
+                Point::new(b, a, 0.0),
+                Point::new(c, a, -d),
+                Point::new(e, a, -f),
+                Point::new(e, a, f),
+                Point::new(c, a, d),
+                Point::new(-e, -a, -f),
+                Point::new(-c, -a, -d),
+                Point::new(-b, -a, 0.0),
+                Point::new(-c, -a, d),
+                Point::new(-e, -a, f),
+                Point::new(0.0, -1.0, 0.0),
             ];
             for exp_v in expect.iter_mut() {
-                *exp_v = scale(radius, radius, radius).mul_v4(exp_v);
+                *exp_v = scale(radius, radius, radius).mul_v3(*exp_v);
             }
             let (vertices, indices) = make_icosahedron(radius, None, None, None);
             assert_eq!(vertices.len(), expect.len());
             assert_eq!(indices.len(), 60);
             assert!(vertices
                 .iter()
-                .map(|v| v.pos)
+                .map(|v| v.point)
                 .zip(expect.iter())
                 .all(|(res, exp)| res.iter().zip(exp.iter()).all(|(x, y)| (x - y).abs() < EPS)));
         }
@@ -123,7 +116,7 @@ mod shape {
             assert_eq!(indices.len(), index_num);
             assert!(vertices
                 .iter()
-                .map(|v| v.pos)
+                .map(|v| v.point)
                 .all(|p| (p.norm_l2() - radius).abs() < EPS),
                 "radius: {radius}, division: {division}"
             );

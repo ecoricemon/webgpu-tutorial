@@ -1,6 +1,5 @@
-use super::{transform::*, Color, Mat4f, Mat4fExt, Normal, Position, Random, Vec4Ext, Vertex};
-use crate::constant::{color::*, radian::*};
-use crate::log;
+use super::{transform::*, Color, Mat4fExt, Normal, Point, Random, Vertex};
+use crate::constant::radian::*;
 
 #[derive(Copy, Clone)]
 enum Edge {
@@ -31,12 +30,11 @@ pub fn make_circle(center: Vertex, radius: f32, vertices: u32) -> (Vec<Vertex>, 
         .map(|theta| {
             let (s, c) = theta.sin_cos();
             Vertex {
-                pos: Position::_from(&[
-                    center.pos[0] + radius * c,
-                    center.pos[1] + radius * s,
-                    center.pos[2],
-                    center.pos[3],
-                ]),
+                point: Point::new(
+                    center.point.x() + radius * c,
+                    center.point.y() + radius * s,
+                    center.point.z(),
+                ),
                 ..center
             }
         })
@@ -47,30 +45,30 @@ pub fn make_circle(center: Vertex, radius: f32, vertices: u32) -> (Vec<Vertex>, 
 }
 
 pub fn make_cube(
-    center: Position,
+    center: Point,
     width: f32,
     height: f32,
     depth: f32,
     color: Option<Color>,
 ) -> (Vec<Vertex>, Vec<u32>) {
     let (hw, hh, hd) = (width / 2.0, height / 2.0, depth / 2.0);
-    let fbl = center.add_v4(&Position::new3(-hw, -hh, hd));
-    let positions: Vec<Position> = (0..8)
+    let fbl = center + Point::new(-hw, -hh, hd);
+    let points: Vec<Point> = (0..8)
         .map(|i| {
-            fbl.add_v4(&Position::new3(
+            fbl + Point::new(
                 if i & 1 != 0 { width } else { 0.0 },
                 if i & 2 != 0 { height } else { 0.0 },
                 if i & 4 != 0 { -depth } else { 0.0 },
-            ))
+            )
         })
         .collect();
     let normals = [
-        Normal::new3(1.0, 0.0, 0.0),  // Right
-        Normal::new3(-1.0, 0.0, 0.0), // Left
-        Normal::new3(0.0, 1.0, 0.0),  // Top
-        Normal::new3(0.0, -1.0, 0.0), // Bottom
-        Normal::new3(0.0, 0.0, 1.0),  // Front
-        Normal::new3(0.0, 0.0, -1.0), // Rear
+        Normal::new(1.0, 0.0, 0.0),  // Right
+        Normal::new(-1.0, 0.0, 0.0), // Left
+        Normal::new(0.0, 1.0, 0.0),  // Top
+        Normal::new(0.0, -1.0, 0.0), // Bottom
+        Normal::new(0.0, 0.0, 1.0),  // Front
+        Normal::new(0.0, 0.0, -1.0), // Rear
     ];
     let planes: [[u32; 4]; 6] = [
         [1, 5, 3, 7],
@@ -85,7 +83,7 @@ pub fn make_cube(
         .enumerate()
         .flat_map(|(ni, plane)| {
             plane.map(|pi| Vertex {
-                pos: positions[pi as usize],
+                point: points[pi as usize],
                 color: color.unwrap_or(Color::random()),
                 normal: normals[ni],
             })
@@ -107,24 +105,23 @@ pub fn make_icosahedron(
 ) -> (Vec<Vertex>, Vec<u32>) {
     // Reference: https://en.wikipedia.org/wiki/Regular_icosahedron
     let a = 1_f32 / 5_f32.sqrt() * radius;
-    let mut positions = Vec::with_capacity(vertex_cap.unwrap_or(12));
-    positions.push(Position::new3(0.0, 1.0 * radius, 0.0));
-    positions.push(Position::new3(2.0 * a, a, 0.0));
-    let (s, c) = FRAC_TAU_5.sin_cos();
+    let mut points = Vec::with_capacity(vertex_cap.unwrap_or(12));
+    points.push(Point::new(0.0, 1.0 * radius, 0.0));
+    points.push(Point::new(2.0 * a, a, 0.0));
     for i in 1..=4 {
-        positions.push(rotate_y(FRAC_TAU_5 * i as f32).mul_v4(&positions[1]));
+        points.push(rotate_y(FRAC_TAU_5 * i as f32).mul_v3(points[1]));
     }
     let rot_mat = rotate_y(FRAC_PI_5);
     for i in 1..=5 {
-        positions.push(rot_mat.mul_v4(&positions[i].sub_v4(&Position::new3(0.0, 2.0 * a, 0.0))));
+        points.push(rot_mat.mul_v3(points[i] - Point::new(0.0, 2.0 * a, 0.0)));
     }
-    positions.push(Position::new3(0.0, -1.0 * radius, 0.0));
-    let mut vertices: Vec<Vertex> = positions
+    points.push(Point::new(0.0, -1.0 * radius, 0.0));
+    let vertices: Vec<Vertex> = points
         .into_iter()
-        .map(|pos| Vertex {
-            pos,
+        .map(|point| Vertex {
+            point,
             color: color.unwrap_or(Color::random()),
-            normal: pos,
+            normal: point,
         })
         .collect();
     // CCW, Triangle List
@@ -145,18 +142,10 @@ fn cut_arc_into_pow2(buf: &mut [Vertex], off: usize, len: usize, si: usize, ei: 
         return;
     }
     let half = len / 2;
-    buf[off + half] = (&buf[si] + &buf[ei]).normalize();
+    buf[off + half] = &buf[si] + &buf[ei];
+    buf[off + half].normalize();
     cut_arc_into_pow2(buf, off, half, si, off + half);
     cut_arc_into_pow2(buf, off + half + 1, half, off + half, ei);
-}
-
-fn cut_arc(buf: &mut [Vertex], off: usize, len: usize, si: usize, ei: usize, radius: f32) {
-    let cross = buf[si].pos.cross_product(&buf[ei].pos).normalize();
-    let step = buf[si].pos.angle_between(&buf[ei].pos) / (len + 1) as f32;
-    for i in 0..len {
-        buf[off + i].pos = rotate_axis(&cross, step * (i + 1) as f32).mul_v4(&buf[si].pos);
-        buf[off + i].color = WHITE;
-    }
 }
 
 fn cut_icosahedron_edges(
@@ -232,10 +221,10 @@ pub fn make_icosphere(
     const E: usize = 30;
     const F: usize = 20;
     let d = division;
-    let shared_unit = ((1 << d) - 1);
+    let shared_unit = (1 << d) - 1;
     let inner_unit = ((1 << d) - 2) * (1 + ((1 << d) - 2)) / 2;
     let (seed_len, shared_len, inner_len) = (V, E * shared_unit, F * inner_unit);
-    let (seed_off, shared_off, inner_off) = (0, seed_len, seed_len + shared_len);
+    let (shared_off, inner_off) = (seed_len, seed_len + shared_len);
     let vertex_len = seed_len + shared_len + inner_len;
     let index_len = 60 * 4_usize.pow(d as u32);
     let (mut vertices, mut indices) =
@@ -274,7 +263,7 @@ pub fn make_icosphere(
             unwrap(f.e[1]) + half,
             unwrap(f.e[2]) + half,
         ];
-        let mut half_offs = [off, off + half, off + 2 * half];
+        let half_offs = [off, off + half, off + 2 * half];
         let mut faces = [Face::default(); 4];
         for i in 0..3 {
             cut_arc_into_pow2(vertices, half_offs[i], half, halfs[i], halfs[(i + 5) % 3]);
@@ -307,7 +296,7 @@ pub fn make_icosphere(
                 new_len,
             );
         }
-    };
+    }
     for i in 0..faces.len() {
         divide(
             &mut vertices,
@@ -319,10 +308,10 @@ pub fn make_icosphere(
         );
     }
 
-    // Copy positions into normals, and then adapt the radius
+    // Copy points into normals, and then adapt the radius
     for v in vertices.iter_mut() {
-        v.normal = v.pos;
-        v.pos.mul_assign(radius);
+        v.normal = v.point;
+        v.point *= radius;
     }
     (vertices, indices)
 }
@@ -330,7 +319,7 @@ pub fn make_icosphere(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::{constant::*, Vec4};
+    use crate::constant::*;
     use wasm_bindgen_test::*;
 
     wasm_bindgen_test_configure!(run_in_browser);
@@ -342,55 +331,23 @@ mod tests {
     fn cut_arc_into_pow2_from_2_to_16() {
         for n in [2, 4, 8, 16] {
             let radius = 1.0;
-            let mut buf: Vec<Vertex> = vec![Position::_default().into(); n + 1];
+            let mut buf: Vec<Vertex> = vec![Point::default().into(); n + 1];
             let rot_y = rotate_y(-radian::FRAC_PI_4);
-            let s = Position::new3(radius, 0.0, 0.0);
-            let e = Position::new3(0.0, radius, 0.0);
-            (buf[0].pos, buf[1].pos) = (rot_y.mul_v4(&s), e);
+            let s = Point::new(radius, 0.0, 0.0);
+            let e = Point::new(0.0, radius, 0.0);
+            (buf[0].point, buf[1].point) = (rot_y.mul_v3(s), e);
 
             let mut expect = buf.clone();
             let theta = radian::FRAC_PI_2 / n as f32;
             for i in 1..n {
-                expect[i + 1] = rot_y.mul_m4(rotate_z(theta * i as f32)).mul_v4(&s).into();
+                expect[i + 1] = rot_y.mul_m4(rotate_z(theta * i as f32)).mul_v3(s).into();
             }
 
             cut_arc_into_pow2(&mut buf, 2, n - 1, 0, 1);
             assert!(buf
                 .iter()
-                .map(|v| v.pos)
-                .zip(expect.iter().map(|v| v.pos))
-                .all(|(res, exp)| res.iter().zip(exp.iter()).all(|(x, y)| (x - y).abs() < EPS)));
-        }
-    }
-
-    #[wasm_bindgen_test]
-    #[rustfmt::skip]
-    fn cut_arc_from_2_to_16() {
-        for (n, radius) in [
-            (2, 1.0),
-            (4, 1.0),
-            (8, 1.0),
-            (16, 1.0),
-            (16, 0.5),
-            (16, 2.0),
-        ] {
-            let mut buf: Vec<Vertex> = vec![Position::_default().into(); n + 1];
-            let rot_y = rotate_y(-radian::FRAC_PI_4);
-            let s = Position::new3(radius, 0.0, 0.0);
-            let e = Position::new3(0.0, radius, 0.0);
-            (buf[0].pos, buf[1].pos) = (rot_y.mul_v4(&s), e);
-
-            let mut expect = buf.clone();
-            let theta = radian::FRAC_PI_2 / n as f32;
-            for i in 1..n {
-                expect[i + 1] = rot_y.mul_m4(rotate_z(theta * i as f32)).mul_v4(&s).into();
-            }
-
-            cut_arc(&mut buf, 2, n - 1, 0, 1, radius);
-            assert!(buf
-                .iter()
-                .map(|v| v.pos)
-                .zip(expect.iter().map(|v| v.pos))
+                .map(|v| v.point)
+                .zip(expect.iter().map(|v| v.point))
                 .all(|(res, exp)| res.iter().zip(exp.iter()).all(|(x, y)| (x - y).abs() < EPS)));
         }
     }
@@ -400,10 +357,9 @@ mod tests {
         for d in 0..=5 {
             const V: usize = 12;
             const E: usize = 30;
-            let shared_unit = ((1 << d) - 1);
-            let inner_unit = ((1 << d) - 2) * (1 + ((1 << d) - 2)) / 2;
+            let shared_unit = (1 << d) - 1;
             let (seed_len, shared_len) = (V, E * shared_unit);
-            let (seed_off, shared_off, inner_off) = (0, seed_len, seed_len + shared_len);
+            let shared_off = seed_len;
             let vertex_len = seed_len + shared_len;
             let (mut buf, _) = make_icosahedron(1.0, None, Some(vertex_len), None);
 
@@ -412,22 +368,22 @@ mod tests {
             let (mut low, mut high) = (f32::MAX, f32::MIN);
             for f in faces {
                 for i in 0..3 {
-                    let mut positions: Vec<Position> = vec![buf[f.v[i]].pos];
+                    let mut points: Vec<Point> = vec![buf[f.v[i]].point];
                     match f.e[i] {
                         Edge::F(si, len) => {
                             for j in si..si + len {
-                                positions.push(buf[j].pos);
+                                points.push(buf[j].point);
                             }
                         }
                         Edge::R(si, len) => {
                             for j in (si..si + len).rev() {
-                                positions.push(buf[j].pos);
+                                points.push(buf[j].point);
                             }
                         }
                     }
-                    positions.push(buf[f.v[(i + 1) % 3]].pos);
-                    for win in positions.windows(2) {
-                        let d = win[0].dist(&win[1]);
+                    points.push(buf[f.v[(i + 1) % 3]].point);
+                    for win in points.windows(2) {
+                        let d = win[0].dist(win[1]);
                         low = low.min(d);
                         high = high.max(d);
                     }

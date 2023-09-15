@@ -1,4 +1,4 @@
-use super::{Mat4f, Mat4fExt, Vec4, Vec4Ext};
+use super::{Mat4f, Mat4fExt, Vector};
 
 pub fn translate_x(d: f32) -> Mat4f {
     Mat4f::new([
@@ -45,7 +45,7 @@ pub fn rotate_z(theta: f32) -> Mat4f {
     ])
 }
 
-pub fn rotate_axis(axis: &Vec4<f32>, theta: f32) -> Mat4f {
+pub fn rotate_axis(axis: Vector<f32, 3>, theta: f32) -> Mat4f {
     debug_assert!((axis.norm_l2() - 1.0) < 1e-6);
     let (sin, cos) = theta.sin_cos();
     let o_cos = 1.0 - cos;

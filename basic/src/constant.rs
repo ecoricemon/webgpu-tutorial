@@ -1,15 +1,17 @@
+#![allow(unused)]
+
 pub mod color {
-    use super::super::{into_vec4, Vec4};
-    pub const BLACK: Vec4<u8> = into_vec4(0x00, 0x00, 0x00, 0xFF);
-    pub const WHITE: Vec4<u8> = into_vec4(0xFF, 0xFF, 0xFF, 0xFF);
-    pub const RED: Vec4<u8> = into_vec4(0xFF, 0x00, 0x00, 0xFF);
-    pub const GREEN: Vec4<u8> = into_vec4(0x00, 0xFF, 0x00, 0xFF);
-    pub const BLUE: Vec4<u8> = into_vec4(0x00, 0x00, 0xFF, 0xFF);
-    pub const YELLOW: Vec4<u8> = into_vec4(0xFF, 0xFF, 0x00, 0xFF);
-    pub const MAGENTA: Vec4<u8> = into_vec4(0xFF, 0x00, 0xFF, 0xFF);
-    pub const CYAN: Vec4<u8> = into_vec4(0x00, 0xFF, 0xFF, 0xFF);
-    pub const GRAY: Vec4<u8> = into_vec4(0x80, 0x80, 0x80, 0xFF);
-    pub const HOTPINK: Vec4<u8> = into_vec4(0xFF, 0x69, 0xB4, 0xFF);
+    use super::super::{arr_to_color, Color};
+    pub const BLACK: Color = arr_to_color([0x00, 0x00, 0x00]);
+    pub const WHITE: Color = arr_to_color([0xFF, 0xFF, 0xFF]);
+    pub const RED: Color = arr_to_color([0xFF, 0x00, 0x00]);
+    pub const GREEN: Color = arr_to_color([0x00, 0xFF, 0x00]);
+    pub const BLUE: Color = arr_to_color([0x00, 0x00, 0xFF]);
+    pub const YELLOW: Color = arr_to_color([0xFF, 0xFF, 0x00]);
+    pub const MAGENTA: Color = arr_to_color([0xFF, 0x00, 0xFF]);
+    pub const CYAN: Color = arr_to_color([0x00, 0xFF, 0xFF]);
+    pub const GRAY: Color = arr_to_color([0x80, 0x80, 0x80]);
+    pub const HOTPINK: Color = arr_to_color([0xFF, 0x69, 0xB4]);
 }
 
 pub mod radian {
