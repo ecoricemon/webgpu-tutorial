@@ -154,7 +154,7 @@ macro_rules! impl_vector {
 
             #[inline]
             pub fn cross_product(self, rhs: Self) -> Self {
-                // todo!("Generalize");
+                // TODO: Generalize
                 debug_assert!($d == 3);
                 Self([
                     self.0[1] * rhs.0[2] - self.0[2] * rhs.0[1],
@@ -175,7 +175,6 @@ macro_rules! impl_vector {
                 Self([value; $d])
             }
         }
-
 
         impl<T: Copy> From<&[T]> for Vector<T, $d> {
             #[inline]

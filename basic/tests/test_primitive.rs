@@ -5,45 +5,6 @@ wasm_bindgen_test_configure!(run_in_browser);
 
 const EPS: f32 = 1e-6;
 
-#[wasm_bindgen_test]
-#[rustfmt::skip]
-fn transpose_arbitrary() {
-    assert_eq!(
-        [
-            0.1, 0.2, 0.3, 0.4,
-            0.5, 0.6, 0.7, 0.8,
-            0.9, 1.0, 1.1, 1.2,
-            1.3, 1.4, 1.5, 1.6,
-        ],
-        [
-            0.1, 0.5, 0.9, 1.3,
-            0.2, 0.6, 1.0, 1.4,
-            0.3, 0.7, 1.1, 1.5,
-            0.4, 0.8, 1.2, 1.6,
-        ].transpose()
-    )
-}
-
-mod transform {
-    use super::*;
-    use basic::primitive::transform::*;
-
-    #[wasm_bindgen_test]
-    #[rustfmt::skip]
-    fn translate_matrix_is_ok() {
-        let (dx, dy, dz) = (1.0, 2.0, 3.0);
-        assert_eq!(
-            translate(dx, dy, dz),
-            [   // Row-major
-                1.0, 0.0, 0.0, dx,
-                0.0, 1.0, 0.0, dy,
-                0.0, 0.0, 1.0, dz,
-                0.0, 0.0, 0.0, 1.0
-            ].transpose()
-        );
-    }
-}
-
 mod shape {
     use super::*;
     use basic::primitive::{shape::*, transform::scale};
@@ -86,7 +47,7 @@ mod shape {
                 Point::new(0.0, -1.0, 0.0),
             ];
             for exp_v in expect.iter_mut() {
-                *exp_v = scale(radius, radius, radius).mul_v3(*exp_v);
+                *exp_v = &scale(radius, radius, radius) * (*exp_v);
             }
             let (vertices, indices) = make_icosahedron(radius, None, None, None);
             assert_eq!(vertices.len(), expect.len());

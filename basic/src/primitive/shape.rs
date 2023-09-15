@@ -1,4 +1,4 @@
-use super::{transform::*, Color, Mat4fExt, Normal, Point, Random, Vertex};
+use super::{transform::*, Color, Normal, Point, Random, Vertex};
 use crate::constant::radian::*;
 
 #[derive(Copy, Clone)]
@@ -109,11 +109,11 @@ pub fn make_icosahedron(
     points.push(Point::new(0.0, 1.0 * radius, 0.0));
     points.push(Point::new(2.0 * a, a, 0.0));
     for i in 1..=4 {
-        points.push(rotate_y(FRAC_TAU_5 * i as f32).mul_v3(points[1]));
+        points.push(&rotate_y(FRAC_TAU_5 * i as f32) * points[1]);
     }
     let rot_mat = rotate_y(FRAC_PI_5);
     for i in 1..=5 {
-        points.push(rot_mat.mul_v3(points[i] - Point::new(0.0, 2.0 * a, 0.0)));
+        points.push(&rot_mat * (points[i] - Point::new(0.0, 2.0 * a, 0.0)));
     }
     points.push(Point::new(0.0, -1.0 * radius, 0.0));
     let vertices: Vec<Vertex> = points
@@ -335,12 +335,12 @@ mod tests {
             let rot_y = rotate_y(-radian::FRAC_PI_4);
             let s = Point::new(radius, 0.0, 0.0);
             let e = Point::new(0.0, radius, 0.0);
-            (buf[0].point, buf[1].point) = (rot_y.mul_v3(s), e);
+            (buf[0].point, buf[1].point) = (&rot_y * s, e);
 
             let mut expect = buf.clone();
             let theta = radian::FRAC_PI_2 / n as f32;
             for i in 1..n {
-                expect[i + 1] = rot_y.mul_m4(rotate_z(theta * i as f32)).mul_v3(s).into();
+                expect[i + 1] = (&(&rot_y * &rotate_z(theta * i as f32)) * s).into();
             }
 
             cut_arc_into_pow2(&mut buf, 2, n - 1, 0, 1);

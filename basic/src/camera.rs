@@ -32,17 +32,14 @@ impl PerspectiveCamera {
         center: Option<(f32, f32, f32)>,
         up: Option<(f32, f32, f32)>,
     ) {
-        match eye {
-            Some(x) => self.eye = x.into(),
-            None => (),
+        if let Some(x) = eye {
+            self.eye = x.into();
         }
-        match center {
-            Some(x) => self.center = x.into(),
-            None => (),
+        if let Some(x) = center {
+            self.center = x.into();
         }
-        match up {
-            Some(x) => self.up = x.into(),
-            None => (),
+        if let Some(x) = up {
+            self.up = x.into();
         }
         self.view = cgmath::Matrix4::look_at_rh(self.eye, self.center, self.up);
     }
@@ -54,21 +51,17 @@ impl PerspectiveCamera {
         near: Option<f32>,
         far: Option<f32>,
     ) {
-        match fovy {
-            Some(x) => self.fovy = cgmath::Deg(x),
-            None => (),
+        if let Some(x) = fovy {
+            self.fovy = cgmath::Deg(x);
         }
-        match aspect {
-            Some(x) => self.aspect = x,
-            None => (),
+        if let Some(x) = aspect {
+            self.aspect = x;
         }
-        match near {
-            Some(x) => self.near = x,
-            None => (),
+        if let Some(x) = near {
+            self.near = x;
         }
-        match far {
-            Some(x) => self.far = x,
-            None => (),
+        if let Some(x) = far {
+            self.far = x;
         }
         self.proj = cgmath::perspective(self.fovy, self.aspect, self.near, self.far);
     }
@@ -98,4 +91,12 @@ impl Default for PerspectiveCamera {
             proj,
         }
     }
+}
+
+#[cfg(test)]
+mod tests {
+    use wasm_bindgen_test::*;
+    // use super::*;
+
+    wasm_bindgen_test_configure!(run_in_browser);
 }
