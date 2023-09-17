@@ -15,5 +15,5 @@ define_vertex!([f32; 3], [u8; 4], [f32; 3]);
 
 // constant setter
 const fn u8x4_to_color(value: [u8; 4]) -> Color {
-    my_math::Vector(value)
+    eg_math::Vector(value)
 }

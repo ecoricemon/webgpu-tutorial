@@ -1,6 +1,6 @@
 [package]
 name = "basic"
-description = "wgpu + webpack base"
+description = "For Easy and useful WebGPU example"
 repository = "https://github.com/ecoricemon/webgpu-tutorial"
 license = "Apache-2.0, MIT"
 version = "0.1.0"
@@ -39,8 +39,9 @@ js-sys = "0.3.64"
 console_error_panic_hook = "0.1.7"
 console_log = "1.0.0"
 log = "0.4.19"
-my_math = { version = "0.1.0", path = "sub_crates/my_math" }
-my_primitive = { version = "0.1.0", path = "sub_crates/my_primitive" }
+eg_math = { version = "0.1.0", path = "sub_crates/eg_math" }
+eg_primitive = { version = "0.1.0", path = "sub_crates/eg_primitive" }
+eg_camera = { version = "0.1.0", path = "sub_crates/eg_camera" }
 
 # These crates are used for running unit tests.
 [dev-dependencies]

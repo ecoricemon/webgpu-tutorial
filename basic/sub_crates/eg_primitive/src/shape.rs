@@ -1,5 +1,5 @@
 use super::prelude::*;
-use my_math::prelude::*;
+use eg_math::prelude::*;
 
 #[derive(Copy, Clone)]
 enum Edge {
@@ -17,6 +17,42 @@ impl Default for Edge {
 struct Face {
     v: [usize; 3],
     e: [Edge; 3],
+}
+
+/// Samples: "square", "circle", "cube", "sphere"
+pub fn sample(name: &str) -> Option<(Vec<Vertex>, Vec<u32>)> {
+    match name {
+        "square" => Some(sample_square()),
+        "circle" => Some(sample_circle()),
+        "cube" => Some(sample_cube()),
+        "sphere" => Some(sample_icosphere()),
+        _ => None,
+    }
+}
+
+fn sample_square() -> (Vec<Vertex>, Vec<u32>) {
+    make_square(
+        Vertex::new(Point::new(-1.0, -1.0, 0.0), color::BLUE, Default::default()),
+        Vertex::new(Point::new(1.0, -1.0, 0.0), color::GREEN, Default::default()),
+        Vertex::new(
+            Point::new(-1.0, 1.0, 0.0),
+            color::MAGENTA,
+            Default::default(),
+        ),
+        Vertex::new(Point::new(1.0, 1.0, 0.0), color::YELLOW, Default::default()),
+    )
+}
+
+fn sample_circle() -> (Vec<Vertex>, Vec<u32>) {
+    make_circle(Default::default(), 1.0, 32, None)
+}
+
+fn sample_cube() -> (Vec<Vertex>, Vec<u32>) {
+    make_cube(Vector::<f32, 3>::new(0.0, 0.0, -1.0), 2.0, 2.0, 2.0, None)
+}
+
+fn sample_icosphere() -> (Vec<Vertex>, Vec<u32>) {
+    make_icosphere(0.5, 3, None)
 }
 
 pub fn make_square(bl: Vertex, br: Vertex, tl: Vertex, tr: Vertex) -> (Vec<Vertex>, Vec<u32>) {

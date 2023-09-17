@@ -1,5 +1,5 @@
 [package]
-name = "my_primitive"
+name = "eg_primitive"
 description = "sub crate"
 repository = "https://github.com/ecoricemon/webgpu-tutorial"
 license = "Apache-2.0, MIT"
@@ -13,7 +13,7 @@ crate-type = ["cdylib", "rlib"]
 bytemuck = { version = "1.13.1", features = [
     "derive"
 ]}
-my_math = { version = "0.1.0", path = "../my_math" }
+eg_math = { version = "0.1.0", path = "../eg_math" }
 wgpu = "0.16.2"
 
 # These crates are used for running unit tests.

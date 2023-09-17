@@ -126,10 +126,11 @@ dependencies = [
  "bytemuck",
  "console_error_panic_hook",
  "console_log",
+ "eg_camera",
+ "eg_math",
+ "eg_primitive",
  "js-sys",
  "log",
- "my_math",
- "my_primitive",
  "wasm-bindgen",
  "wasm-bindgen-futures",
  "wasm-bindgen-test",
@@ -368,6 +369,35 @@ name = "downcast-rs"
 version = "1.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9ea835d29036a4087793836fa931b08837ad5e957da9e23886b29586fb9b6650"
+
+[[package]]
+name = "eg_camera"
+version = "0.1.0"
+dependencies = [
+ "eg_math",
+ "eg_primitive",
+ "wasm-bindgen-test",
+]
+
+[[package]]
+name = "eg_math"
+version = "0.1.0"
+dependencies = [
+ "bytemuck",
+ "js-sys",
+ "paste",
+ "wasm-bindgen-test",
+]
+
+[[package]]
+name = "eg_primitive"
+version = "0.1.0"
+dependencies = [
+ "bytemuck",
+ "eg_math",
+ "wasm-bindgen-test",
+ "wgpu",
+]
 
 [[package]]
 name = "equivalent"
@@ -714,26 +744,6 @@ dependencies = [
  "log",
  "wasi",
  "windows-sys 0.48.0",
-]
-
-[[package]]
-name = "my_math"
-version = "0.1.0"
-dependencies = [
- "bytemuck",
- "js-sys",
- "paste",
- "wasm-bindgen-test",
-]
-
-[[package]]
-name = "my_primitive"
-version = "0.1.0"
-dependencies = [
- "bytemuck",
- "my_math",
- "wasm-bindgen-test",
- "wgpu",
 ]
 
 [[package]]

@@ -4,12 +4,11 @@ use winit::{
     dpi::PhysicalSize, event_loop::EventLoop, platform::web::WindowBuilderExtWebSys,
     window::WindowBuilder,
 };
-mod camera;
 #[macro_use]
 pub mod util;
-use camera::PerspectiveCamera;
-use my_math::prelude as math;
-use my_primitive::prelude as primitive;
+use eg_camera::PerspectiveCamera;
+use eg_math::prelude as math;
+use eg_primitive::prelude as primitive;
 
 #[repr(C)]
 #[derive(Clone, Copy, bytemuck::Pod, bytemuck::Zeroable, Debug, Default)]
@@ -53,44 +52,11 @@ static mut STATE: Option<State> = None;
 
 impl State {
     async fn new() -> Self {
-        // Square
-        // let (vertices, indices) = primitive::make_square(
-        //     primitive::Vertex::new(
-        //         primitive::Point::new(-1.0, -1.0, 0.0),
-        //         primitive::color::BLUE,
-        //         Default::default(),
-        //     ),
-        //     primitive::Vertex::new(
-        //         primitive::Point::new(1.0, -1.0, 0.0),
-        //         primitive::color::GREEN,
-        //         Default::default(),
-        //     ),
-        //     primitive::Vertex::new(
-        //         primitive::Point::new(-1.0, 1.0, 0.0),
-        //         primitive::color::MAGENTA,
-        //         Default::default(),
-        //     ),
-        //     primitive::Vertex::new(
-        //         primitive::Point::new(1.0, 1.0, 0.0),
-        //         primitive::color::YELLOW,
-        //         Default::default(),
-        //     ),
-        // );
-        // Circle
-        // let (vertices, indices) = primitive::make_circle(
-        //         Default::default(),
-        //         1.0,
-        //         32,
-        //         None
-        // );
-        // Sphere
-        // let (vertices, indices) = primitive::make_icosphere(0.5, 3, None);
-        // Cube
-        let (vertices, indices) =
-            primitive::make_cube(math::Vector::<f32, 3>::new(0.0, 0.0, -1.0), 2.0, 2.0, 2.0, None);
-        // window
+        // Sample shape
+        let (vertices, indices) = primitive::sample("cube").unwrap();
+        // Window
         let window = web_sys::window().expect_throw("Failed to get the window");
-        // canvas
+        // Canvas
         let canvas = State::init_canvas(&window).expect_throw("Failed to get the canvas");
         // winit window
         let winit_window = State::create_window(&canvas).expect_throw("Failed to create a window");
@@ -119,7 +85,7 @@ impl State {
         let vertex_buffer = State::create_vertex_buffer(&device, bytemuck::cast_slice(&vertices));
         // wgpu index buffer
         let index_buffer = State::create_index_buffer(&device, bytemuck::cast_slice(&indices));
-        // camera
+        // Camera
         let mut camera = PerspectiveCamera::new();
         let aspect = canvas.width() as f32 / canvas.height() as f32;
         camera.set_proj(None, Some(aspect), None, None);
@@ -142,9 +108,9 @@ impl State {
             &shader_module,
             &surface_config,
         );
-        // animation_loop
+        // Animation_loop
         let animation_cb = State::create_animation_loop();
-        // frame control
+        // Frame control
         let frame_control = FrameControl {
             // target_elapsed_msec: 1000.0,
             ..Default::default()

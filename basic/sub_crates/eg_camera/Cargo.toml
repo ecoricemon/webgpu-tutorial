@@ -1,0 +1,18 @@
+[package]
+name = "eg_camera"
+description = "sub crate"
+repository = "https://github.com/ecoricemon/webgpu-tutorial"
+license = "Apache-2.0, MIT"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+eg_math = { version = "0.1.0", path = "../eg_math" }
+eg_primitive = { version = "0.1.0", path = "../eg_primitive" }
+
+# These crates are used for running unit tests.
+[dev-dependencies]
+wasm-bindgen-test = "0.3.37"

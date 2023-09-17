@@ -1,9 +1,9 @@
 #[macro_export]
 macro_rules! define_vertex {
     ([$ptype:ty; $pdim:expr], [$ctype:ty; $cdim:expr], [$ntype:ty; $ndim:expr]) => {
-        pub type Point = my_math::prelude::Vector<$ptype, $pdim>;
-        pub type Color = my_math::prelude::Vector<$ctype, $cdim>;
-        pub type Normal = my_math::prelude::Vector<$ntype, $ndim>;
+        pub type Point = eg_math::prelude::Vector<$ptype, $pdim>;
+        pub type Color = eg_math::prelude::Vector<$ctype, $cdim>;
+        pub type Normal = eg_math::prelude::Vector<$ntype, $ndim>;
 
         #[derive(Debug, Clone, Copy, bytemuck::Pod, bytemuck::Zeroable)]
         #[repr(C)]

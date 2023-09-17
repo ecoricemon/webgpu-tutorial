@@ -1,5 +1,5 @@
 [package]
-name = "my_math"
+name = "eg_math"
 description = "sub crate"
 repository = "https://github.com/ecoricemon/webgpu-tutorial"
 license = "Apache-2.0, MIT"

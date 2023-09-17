@@ -1,5 +1,5 @@
-use my_math::prelude::*;
-use my_primitive::prelude::*;
+use eg_math::prelude::*;
+use eg_primitive::prelude::*;
 
 #[derive(Debug)]
 pub struct PerspectiveCamera {
