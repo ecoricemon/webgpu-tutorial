@@ -1,47 +1,69 @@
-use cgmath;
+use my_math::prelude::*;
+use my_primitive::prelude::*;
 
 #[derive(Debug)]
 pub struct PerspectiveCamera {
-    eye: cgmath::Point3<f32>,
-    center: cgmath::Point3<f32>,
-    up: cgmath::Vector3<f32>,
-    fovy: cgmath::Deg<f32>,
-    aspect: f32,
+    camera: Vector<f32, 3>,
+    at: Vector<f32, 3>,
+    up: Vector<f32, 3>,
+    fovy: f32,
+    aspect: f32, // width / height
     near: f32,
     far: f32,
-    view: cgmath::Matrix4<f32>,
-    proj: cgmath::Matrix4<f32>,
+    view: Matrix4f,
+    proj: Matrix4f,
+    pub view_proj: Matrix4f,
 }
 
 impl PerspectiveCamera {
-    const OPENGL_TO_WEBGPU: cgmath::Matrix4<f32> = cgmath::Matrix4::new(
-        1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.5, 0.5, 0.0, 0.0, 0.0, 1.0,
-    );
-
+    #[inline]
     pub fn new() -> Self {
         Default::default()
     }
 
-    pub fn to_view_proj(&self) -> [[f32; 4]; 4] {
-        (Self::OPENGL_TO_WEBGPU * self.proj * self.view).into()
+    #[rustfmt::skip]
+    fn look_at(camera: Vector<f32, 3>, at: Vector<f32, 3>, up: Vector<f32, 3>) -> Matrix4f {
+        let forward = (camera - at).make_unit();
+        let right = up.cross_3d(forward).make_unit();
+        let up = forward.cross_3d(right);
+        Matrix4f::new([
+            right.x(), up.x(), forward.x(), 0.0,
+            right.y(), up.y(), forward.y(), 0.0,
+            right.z(), up.z(), forward.z(), 0.0,
+            -camera.dot(right), -camera.dot(up), -camera.dot(forward), 1.0
+        ])
+    }
+
+    #[rustfmt::skip]
+    fn project(fovy: f32, aspect: f32, near: f32, far: f32) -> Matrix4f {
+        let cot_hfovy = 1.0 / (fovy / 2.0).tan();
+        let n_f = near - far;
+        Matrix4f::new([
+            cot_hfovy / aspect, 0.0, 0.0, 0.0,
+            0.0, cot_hfovy, 0.0, 0.0,
+            0.0, 0.0, (near + far) / n_f, -1.0,
+            0.0, 0.0, 2.0 * near * far / n_f, 0.0,
+        ])
     }
 
     pub fn set_view(
         &mut self,
-        eye: Option<(f32, f32, f32)>,
-        center: Option<(f32, f32, f32)>,
+        camera: Option<(f32, f32, f32)>,
+        at: Option<(f32, f32, f32)>,
         up: Option<(f32, f32, f32)>,
     ) {
-        if let Some(x) = eye {
-            self.eye = x.into();
+        if let Some((x, y, z)) = camera {
+            self.camera.set(x, y, z);
         }
-        if let Some(x) = center {
-            self.center = x.into();
+        if let Some((x, y, z)) = at {
+            self.at.set(x, y, z);
         }
-        if let Some(x) = up {
-            self.up = x.into();
+        if let Some((x, y, z)) = up {
+            self.up.set(x, y, z);
         }
-        self.view = cgmath::Matrix4::look_at_rh(self.eye, self.center, self.up);
+
+        self.view = Self::look_at(self.camera, self.at, self.up);
+        self.view_proj = &self.proj * &self.view;
     }
 
     pub fn set_proj(
@@ -52,7 +74,7 @@ impl PerspectiveCamera {
         far: Option<f32>,
     ) {
         if let Some(x) = fovy {
-            self.fovy = cgmath::Deg(x);
+            self.fovy = x;
         }
         if let Some(x) = aspect {
             self.aspect = x;
@@ -63,25 +85,28 @@ impl PerspectiveCamera {
         if let Some(x) = far {
             self.far = x;
         }
-        self.proj = cgmath::perspective(self.fovy, self.aspect, self.near, self.far);
+
+        self.proj = Self::project(self.fovy, self.aspect, self.near, self.far);
+        self.view_proj = &self.proj * &self.view;
     }
 }
 
 impl Default for PerspectiveCamera {
     fn default() -> Self {
-        let eye = (0.0, 0.0, 0.0).into();
-        let center = (0.0, 0.0, 0.0).into();
-        let up = (0.0, 1.0, 0.0).into();
-        let fovy = cgmath::Deg(90.0);
+        let camera = [0.0, 0.0, 1.0].into();
+        let at = 0_f32.into();
+        let up = [0.0, 1.0, 0.0].into();
+        let fovy = radian::FRAC_PI_2;
         let aspect = 1.0;
         let near = 0.1;
-        let far = 1000.0;
-        let view = cgmath::Matrix4::look_at_rh(eye, center, up);
-        let proj = cgmath::perspective(fovy, aspect, near, far);
+        let far = 10.0;
+        let view = Self::look_at(camera, at, up);
+        let proj = Self::project(fovy, aspect, near, far);
+        let view_proj = &proj * &view;
 
         Self {
-            eye,
-            center,
+            camera,
+            at,
             up,
             fovy,
             aspect,
@@ -89,6 +114,7 @@ impl Default for PerspectiveCamera {
             far,
             view,
             proj,
+            view_proj,
         }
     }
 }

@@ -3,14 +3,18 @@
   "name": "basic",
   "version": "0.1.0",
   "scripts": {
-    "build": "rimraf dist pkg && webpack --config webpack.dev.js",
-    "start": "webpack serve --config webpack.dev.js",
-    "build-release": "rimraf dist pkg && webpack --config webpack.prod.js",
-    "test": "wasm-pack test --chrome --headless",
-    "test-chrome": "wasm-pack test --chrome --headless",
-    "test-firefox": "wasm-pack test --firefox --headless",
-    "test-safari": "wasm-pack test --safari --headless",
-    "clean": "rimraf dist node_modules pkg target"
+    "build":         
+        "npm run clean && webpack --config webpack.dev.js",
+    "build-release":
+        "npm run clean && webpack --config webpack.prod.js",
+    "start":
+        "webpack serve --config webpack.dev.js",
+    "test":
+        "wasm-pack test --chrome --headless --workspace",
+    "clean":
+        "rimraf --glob dist **/pkg",
+    "clean-all":
+        "rimraf --glob dist **/pkg target node_modules"
   },
   "dependencies": {
     "lil-gui": "^0.18.2"

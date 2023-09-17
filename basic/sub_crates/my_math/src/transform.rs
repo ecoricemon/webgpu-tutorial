@@ -1,4 +1,4 @@
-use super::{Matrix4f, Vector};
+use super::prelude::*;
 
 pub fn translate_x(d: f32) -> Matrix4f {
     Matrix4f::new([
@@ -109,16 +109,17 @@ mod tests {
 
     #[wasm_bindgen_test]
     #[rustfmt::skip]
-    fn translate_matrix_is_ok() {
+    fn test_translate_matrix_is_ok() {
         let (dx, dy, dz) = (1.0, 2.0, 3.0);
         assert_eq!(
-            translate(dx, dy, dz),
-            Matrix4f::new([   // Row-major
+            Matrix4f::new([
+                // Row-major
                 1.0, 0.0, 0.0, dx,
                 0.0, 1.0, 0.0, dy,
                 0.0, 0.0, 1.0, dz,
                 0.0, 0.0, 0.0, 1.0
-            ]).transpose()
+            ]).transpose(),
+            translate(dx, dy, dz)
         );
     }
 }

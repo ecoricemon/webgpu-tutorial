@@ -7,12 +7,17 @@ version = "0.1.0"
 edition = "2021"
 
 [lib]
-crate-type = ["cdylib", "rlib"]
+crate-type = ["cdylib"]
 
 [profile.release]
 # This makes the compiled code faster and smaller, but it makes compiling slower,
 # so it's only enabled in release mode.
 lto = true
+
+[workspace]
+members = [
+    "sub_crates/*"
+]
 
 [dependencies]
 wasm-bindgen = "0.2.87"
@@ -30,12 +35,12 @@ bytemuck = { version = "1.13.1", features = [
     "derive",
     "min_const_generics"
 ]}
-paste = "1.0.14"
-cgmath = "0.18"
 js-sys = "0.3.64"
 console_error_panic_hook = "0.1.7"
 console_log = "1.0.0"
 log = "0.4.19"
+my_math = { version = "0.1.0", path = "sub_crates/my_math" }
+my_primitive = { version = "0.1.0", path = "sub_crates/my_primitive" }
 
 # These crates are used for running unit tests.
 [dev-dependencies]

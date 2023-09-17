@@ -5,17 +5,16 @@ use winit::{
     window::WindowBuilder,
 };
 mod camera;
-mod constant;
-pub mod primitive;
 #[macro_use]
 pub mod util;
 use camera::PerspectiveCamera;
-use primitive::*;
+use my_math::prelude as math;
+use my_primitive::prelude as primitive;
 
 #[repr(C)]
 #[derive(Clone, Copy, bytemuck::Pod, bytemuck::Zeroable, Debug, Default)]
 struct UniformData {
-    view_proj: [[f32; 4]; 4],
+    view_proj: math::Matrix4f,
     mouse_move: [f32; 2],
     mouse_click: [f32; 2],
     resolution: [f32; 2],
@@ -55,22 +54,40 @@ static mut STATE: Option<State> = None;
 impl State {
     async fn new() -> Self {
         // Square
-        // let (vertices, indices) = shape::make_square(
-        //     Vertex::new(Point::new(-1.0, -1.0, 0.0), constant::color::BLUE, None),
-        //     Vertex::new(Point::new(1.0, -1.0, 0.0), constant::color::GREEN, None),
-        //     Vertex::new(Point::new(-1.0, 1.0, 0.0), constant::color::MAGENTA, None),
-        //     Vertex::new(Point::new(1.0, 1.0, 0.0), constant::color::YELLOW, None),
+        // let (vertices, indices) = primitive::make_square(
+        //     primitive::Vertex::new(
+        //         primitive::Point::new(-1.0, -1.0, 0.0),
+        //         primitive::color::BLUE,
+        //         Default::default(),
+        //     ),
+        //     primitive::Vertex::new(
+        //         primitive::Point::new(1.0, -1.0, 0.0),
+        //         primitive::color::GREEN,
+        //         Default::default(),
+        //     ),
+        //     primitive::Vertex::new(
+        //         primitive::Point::new(-1.0, 1.0, 0.0),
+        //         primitive::color::MAGENTA,
+        //         Default::default(),
+        //     ),
+        //     primitive::Vertex::new(
+        //         primitive::Point::new(1.0, 1.0, 0.0),
+        //         primitive::color::YELLOW,
+        //         Default::default(),
+        //     ),
         // );
         // Circle
-        // let (vertices, indices) = shape::make_circle(
-        //     Vertex::new(Point::default(), constant::color::BLUE, None),
-        //     1.0,
-        //     32,
+        // let (vertices, indices) = primitive::make_circle(
+        //         Default::default(),
+        //         1.0,
+        //         32,
+        //         None
         // );
-        // Cube
-        // let (vertices, indices) = shape::make_cube(Point::new(0.0, 0.0, -1.0), 2.0, 2.0, 2.0, None);
         // Sphere
-        let (vertices, indices) = shape::make_icosphere(0.5, 3, None);
+        // let (vertices, indices) = primitive::make_icosphere(0.5, 3, None);
+        // Cube
+        let (vertices, indices) =
+            primitive::make_cube(math::Vector::<f32, 3>::new(0.0, 0.0, -1.0), 2.0, 2.0, 2.0, None);
         // window
         let window = web_sys::window().expect_throw("Failed to get the window");
         // canvas
@@ -108,7 +125,7 @@ impl State {
         camera.set_proj(None, Some(aspect), None, None);
         // wgpu uniform buffer
         let uniform_data = UniformData {
-            view_proj: camera.to_view_proj(),
+            view_proj: camera.view_proj,
             resolution: [canvas.width() as f32, canvas.height() as f32],
             mouse_move: [std::f32::MIN, std::f32::MIN],
             mouse_click: [std::f32::MIN, std::f32::MIN],
@@ -252,7 +269,7 @@ impl State {
         device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
             label: Some("Vertex buffer"),
             contents,
-            usage: wgpu::BufferUsages::VERTEX,
+            usage: wgpu::BufferUsages::VERTEX | wgpu::BufferUsages::COPY_DST,
         })
     }
 
@@ -316,13 +333,14 @@ impl State {
                 bind_group_layouts,
                 push_constant_ranges: &[],
             });
+        let attributes = primitive::Vertex::vertex_attribute();
         device.create_render_pipeline(&wgpu::RenderPipelineDescriptor {
             label: Some("Render pipeline"),
             layout: Some(&render_pipeline_layout),
             vertex: wgpu::VertexState {
                 module: shader_module,
                 entry_point: "v_main",
-                buffers: &[Vertex::layout()],
+                buffers: &[primitive::Vertex::layout(&attributes)],
             },
             primitive: wgpu::PrimitiveState {
                 topology: wgpu::PrimitiveTopology::TriangleList,
@@ -486,12 +504,12 @@ impl State {
 
     fn set_camera(
         &mut self,
-        eye: Option<(f32, f32, f32)>,
-        center: Option<(f32, f32, f32)>,
+        camera: Option<(f32, f32, f32)>,
+        at: Option<(f32, f32, f32)>,
         up: Option<(f32, f32, f32)>,
     ) {
-        self.camera.set_view(eye, center, up);
-        self.uniform_data.view_proj = self.camera.to_view_proj();
+        self.camera.set_view(camera, at, up);
+        self.uniform_data.view_proj = self.camera.view_proj;
     }
 }
 
@@ -525,11 +543,11 @@ pub fn print_self() {
 }
 
 #[wasm_bindgen]
-pub fn set_camera(eye_x: f32, eye_y: f32, eye_z: f32, center_x: f32, center_y: f32, center_z: f32) {
+pub fn set_camera(camera_x: f32, camera_y: f32, camera_z: f32, at_x: f32, at_y: f32, at_z: f32) {
     unsafe {
         STATE.as_mut().unwrap_unchecked().set_camera(
-            Some((eye_x, eye_y, eye_z)),
-            Some((center_x, center_y, center_z)),
+            Some((camera_x, camera_y, camera_z)),
+            Some((at_x, at_y, at_z)),
             None,
         );
     }

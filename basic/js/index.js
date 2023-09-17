@@ -7,13 +7,13 @@ addEventListener("keydown", (ev) => {
   print_self();
 })
 
-// Camera eye and center contollers
-const camera_eye = {
+// Camera and target position contollers
+const camera_position = {
   x: 0.0,
   y: 0.0,
   z: 1.0
 };
-const camera_center = {
+const camera_look_at = {
   x: 0.0,
   y: 0.0,
   z: 0.0
@@ -21,28 +21,28 @@ const camera_center = {
 
 const _set_camera = () => {
   set_camera(
-    camera_eye.x, camera_eye.y, camera_eye.z,
-    camera_center.x, camera_center.y, camera_center.z
+    camera_position.x, camera_position.y, camera_position.z,
+    camera_look_at.x, camera_look_at.y, camera_look_at.z
   );
 };
 
 _set_camera();
 GUIHelper
-  .select('camera', 'eye position')
-  .add(camera_eye, "x", -2, 2)
+  .select('camera', 'position')
+  .add(camera_position, "x", -2, 2)
   .onChange(_set_camera)
-  .add(camera_eye, "y", -2, 2)
+  .add(camera_position, "y", -2, 2)
   .onChange(_set_camera)
-  .add(camera_eye, "z", 0.5, 2)
+  .add(camera_position, "z", 0.5, 2)
   .onChange(_set_camera)
   ;
 GUIHelper
-  .select('camera', 'center position')
-  .add(camera_center, "x", -2, 2)
+  .select('camera', 'looking at')
+  .add(camera_look_at, "x", -2, 2)
   .onChange(_set_camera)
-  .add(camera_center, "y", -2, 2)
+  .add(camera_look_at, "y", -2, 2)
   .onChange(_set_camera)
-  .add(camera_center, "z", -0.5, 2)
+  .add(camera_look_at, "z", -0.5, 2)
   .onChange(_set_camera)
   ;
 GUIHelper
