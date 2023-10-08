@@ -22,26 +22,8 @@ members = [
 [dependencies]
 wasm-bindgen = "0.2.87"
 wasm-bindgen-futures = "0.4.37"
-wgpu = "0.16.2"
-web-sys = { version = "0.3.64", features = [
-    "Window",
-    "Document",
-    "Element",
-    "HtmlCanvasElement",
-    "MouseEvent"
-]}
-winit = "0.28.6"
-bytemuck = { version = "1.13.1", features = [
-    "derive",
-    "min_const_generics"
-]}
-js-sys = "0.3.64"
 console_error_panic_hook = "0.1.7"
-console_log = "1.0.0"
-log = "0.4.19"
-eg_math = { version = "0.1.0", path = "sub_crates/eg_math" }
-eg_primitive = { version = "0.1.0", path = "sub_crates/eg_primitive" }
-eg_camera = { version = "0.1.0", path = "sub_crates/eg_camera" }
+eg_app = { version = "0.1.0", path = "sub_crates/eg_app" }
 
 # These crates are used for running unit tests.
 [dev-dependencies]

@@ -1,5 +1,5 @@
 [package]
-name = "eg_primitive"
+name = "eg_ecs"
 description = "sub crate"
 repository = "https://github.com/ecoricemon/webgpu-tutorial"
 license = "Apache-2.0, MIT"
@@ -10,11 +10,6 @@ edition = "2021"
 crate-type = ["cdylib", "rlib"]
 
 [dependencies]
-bytemuck = { version = "1.13.1", features = [
-    "derive"
-]}
-eg_math = { version = "0.1.0", path = "../eg_math" }
-wgpu = "0.17.1"
 
 # These crates are used for running unit tests.
 [dev-dependencies]

@@ -7,10 +7,10 @@ pub use shape::*;
 pub use vertex::*;
 
 pub mod prelude {
-    pub use crate::{constant::*, shape::*, vertex::*, Color, Normal, Point, Vertex};
+    pub use crate::{constant::*, shape::*, vertex::*, Color, Normal, Position, Vertex};
 }
 
-// Define Point, Color, Normal, and Vertex
+// Define Position, Color, Normal, and Vertex
 define_vertex!([f32; 3], [u8; 4], [f32; 3]);
 
 // constant setter

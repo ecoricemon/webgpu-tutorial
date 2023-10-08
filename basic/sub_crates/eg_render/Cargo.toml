@@ -1,5 +1,5 @@
 [package]
-name = "eg_primitive"
+name = "eg_render"
 description = "sub crate"
 repository = "https://github.com/ecoricemon/webgpu-tutorial"
 license = "Apache-2.0, MIT"
@@ -10,11 +10,23 @@ edition = "2021"
 crate-type = ["cdylib", "rlib"]
 
 [dependencies]
+wasm-bindgen = "0.2.87"
+wgpu = "0.17.1"
+winit = "0.29.1-beta"
 bytemuck = { version = "1.13.1", features = [
-    "derive"
+    "derive",
+    "min_const_generics"
+]}
+web-sys = { version = "0.3.64", features = [
+    "Window",
+    "Document",
+    "Element",
+    "HtmlCanvasElement",
+    "MouseEvent"
 ]}
 eg_math = { version = "0.1.0", path = "../eg_math" }
-wgpu = "0.17.1"
+eg_primitive = { version = "0.1.0", path = "../eg_primitive" }
+eg_util = { version = "0.1.0", path = "../eg_util" }
 
 # These crates are used for running unit tests.
 [dev-dependencies]

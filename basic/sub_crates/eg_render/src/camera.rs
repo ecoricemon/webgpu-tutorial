@@ -2,7 +2,7 @@ use eg_math::prelude::*;
 use eg_primitive::prelude::*;
 
 #[derive(Debug)]
-pub struct PerspectiveCamera {
+pub(crate) struct PerspectiveCamera {
     camera: Vector<f32, 3>,
     at: Vector<f32, 3>,
     up: Vector<f32, 3>,
@@ -17,7 +17,7 @@ pub struct PerspectiveCamera {
 
 impl PerspectiveCamera {
     #[inline]
-    pub fn new() -> Self {
+    pub(crate) fn new() -> Self {
         Default::default()
     }
 

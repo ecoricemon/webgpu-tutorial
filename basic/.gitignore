@@ -4,4 +4,5 @@ node_modules
 /pkg
 /wasm-pack.log
 .vscode/
+.idea/
 .DS_Store/

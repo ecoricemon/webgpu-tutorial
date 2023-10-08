@@ -32,14 +32,26 @@ pub fn sample(name: &str) -> Option<(Vec<Vertex>, Vec<u32>)> {
 
 fn sample_square() -> (Vec<Vertex>, Vec<u32>) {
     make_square(
-        Vertex::new(Point::new(-1.0, -1.0, 0.0), color::BLUE, Default::default()),
-        Vertex::new(Point::new(1.0, -1.0, 0.0), color::GREEN, Default::default()),
         Vertex::new(
-            Point::new(-1.0, 1.0, 0.0),
+            Position::new(-1.0, -1.0, 0.0),
+            color::BLUE,
+            Default::default(),
+        ),
+        Vertex::new(
+            Position::new(1.0, -1.0, 0.0),
+            color::GREEN,
+            Default::default(),
+        ),
+        Vertex::new(
+            Position::new(-1.0, 1.0, 0.0),
             color::MAGENTA,
             Default::default(),
         ),
-        Vertex::new(Point::new(1.0, 1.0, 0.0), color::YELLOW, Default::default()),
+        Vertex::new(
+            Position::new(1.0, 1.0, 0.0),
+            color::YELLOW,
+            Default::default(),
+        ),
     )
 }
 
@@ -72,7 +84,7 @@ pub fn make_circle(
         .map(|theta| {
             let (s, c) = theta.sin_cos();
             Vertex {
-                point: Point::from_arr_f32(
+                position: Position::from_arr_f32(
                     [center.x() + radius * c, center.y() + radius * s],
                     DEFAULT,
                 ),
@@ -96,9 +108,9 @@ pub fn make_cube(
     const DEFAULT: [f32; 4] = [0.0, 0.0, 0.0, 1.0];
     let (hw, hh, hd) = (width / 2.0, height / 2.0, depth / 2.0);
     let fbl = center + Vector::<f32, 3>::new(-hw, -hh, hd);
-    let points: Vec<Point> = (0..8)
+    let positions: Vec<Position> = (0..8)
         .map(|i| {
-            Point::from_vec_f32(
+            Position::from_vec_f32(
                 fbl + Vector::<f32, 3>::new(
                     if i & 1 != 0 { width } else { 0.0 },
                     if i & 2 != 0 { height } else { 0.0 },
@@ -129,7 +141,7 @@ pub fn make_cube(
         .enumerate()
         .flat_map(|(ni, plane)| {
             plane.map(|pi| Vertex {
-                point: points[pi as usize],
+                position: positions[pi as usize],
                 color: color.unwrap_or(Color::random(Color::get_max().into(), 0..Color::get_dim())),
                 normal: normals[ni],
             })
@@ -166,11 +178,11 @@ pub fn make_icosahedron(
     let vertices: Vec<Vertex> = coords
         .into_iter()
         .map(|coord| {
-            let point = Point::from_vec_f32(coord, [0.0, 0.0, 0.0, 1.0]);
+            let position = Position::from_vec_f32(coord, [0.0, 0.0, 0.0, 1.0]);
             Vertex {
-                point,
+                position,
                 color: color.unwrap_or(Color::random(Color::get_max().into(), 0..Color::get_dim())),
-                normal: point,
+                normal: position,
             }
         })
         .collect();
@@ -357,10 +369,10 @@ pub fn make_icosphere(
         );
     }
 
-    // Copy points into normals, and then adapt the radius
+    // Copy positions into normals, and then adapt the radius
     for v in vertices.iter_mut() {
-        v.normal = v.point;
-        v.point *= radius;
+        v.normal = v.position;
+        v.position *= radius;
     }
     (vertices, indices)
 }
@@ -385,8 +397,8 @@ mod tests {
             .0
             .iter()
             .map(|v| v
-                .point
-                .dist(Point::from_vec_f32(center, [0.0, 0.0, 0.0, 1.0])))
+                .position
+                .dist(Position::from_vec_f32(center, [0.0, 0.0, 0.0, 1.0])))
             .all(|d| (d - radius).abs() < EPS));
     }
 
@@ -400,18 +412,18 @@ mod tests {
             let e = (-1.0 - a) / 2.0; // (-1 - 1 / 5^0.5) / 2
             let f = c.sqrt(); // ((1 - 1 / 5^0.5) / 2)^0.5
             let mut expect = [
-                Point::new(0.0, 1.0, 0.0),
-                Point::new(b, a, 0.0),
-                Point::new(c, a, -d),
-                Point::new(e, a, -f),
-                Point::new(e, a, f),
-                Point::new(c, a, d),
-                Point::new(-e, -a, -f),
-                Point::new(-c, -a, -d),
-                Point::new(-b, -a, 0.0),
-                Point::new(-c, -a, d),
-                Point::new(-e, -a, f),
-                Point::new(0.0, -1.0, 0.0),
+                Position::new(0.0, 1.0, 0.0),
+                Position::new(b, a, 0.0),
+                Position::new(c, a, -d),
+                Position::new(e, a, -f),
+                Position::new(e, a, f),
+                Position::new(c, a, d),
+                Position::new(-e, -a, -f),
+                Position::new(-c, -a, -d),
+                Position::new(-b, -a, 0.0),
+                Position::new(-c, -a, d),
+                Position::new(-e, -a, f),
+                Position::new(0.0, -1.0, 0.0),
             ];
             for exp_v in expect.iter_mut() {
                 *exp_v = &scale(radius, radius, radius) * (*exp_v);
@@ -421,7 +433,7 @@ mod tests {
             assert_eq!(60, indices.len());
             assert!(vertices
                 .iter()
-                .map(|v| v.point)
+                .map(|v| v.position)
                 .zip(expect.iter())
                 .all(|(res, exp)| res.iter().zip(exp.iter()).all(|(x, y)| (x - y).abs() < EPS)));
         }
@@ -432,11 +444,11 @@ mod tests {
     fn test_cut_arc_into_pow2_from_2_to_16() {
         for n in [2, 4, 8, 16] {
             let radius = 1.0;
-            let mut buf: Vec<Vertex> = vec![Point::default().into(); n + 1];
+            let mut buf: Vec<Vertex> = vec![Position::default().into(); n + 1];
             let rot_y = rotate_y(-radian::FRAC_PI_4);
-            let s = Point::new(radius, 0.0, 0.0);
-            let e = Point::new(0.0, radius, 0.0);
-            (buf[0].point, buf[1].point) = (&rot_y * s, e);
+            let s = Position::new(radius, 0.0, 0.0);
+            let e = Position::new(0.0, radius, 0.0);
+            (buf[0].position, buf[1].position) = (&rot_y * s, e);
 
             let mut expect = buf.clone();
             let theta = radian::FRAC_PI_2 / n as f32;
@@ -447,8 +459,8 @@ mod tests {
             cut_arc_into_pow2(&mut buf, 2, n - 1, 0, 1);
             assert!(buf
                 .iter()
-                .map(|v| v.point)
-                .zip(expect.iter().map(|v| v.point))
+                .map(|v| v.position)
+                .zip(expect.iter().map(|v| v.position))
                 .all(|(res, exp)| res.iter().zip(exp.iter()).all(|(x, y)| (x - y).abs() < EPS)));
         }
     }
@@ -469,21 +481,21 @@ mod tests {
             let (mut low, mut high) = (f32::MAX, f32::MIN);
             for f in faces {
                 for i in 0..3 {
-                    let mut points: Vec<Point> = vec![buf[f.v[i]].point];
+                    let mut positions: Vec<Position> = vec![buf[f.v[i]].position];
                     match f.e[i] {
                         Edge::F(si, len) => {
                             for j in si..si + len {
-                                points.push(buf[j].point);
+                                positions.push(buf[j].position);
                             }
                         }
                         Edge::R(si, len) => {
                             for j in (si..si + len).rev() {
-                                points.push(buf[j].point);
+                                positions.push(buf[j].position);
                             }
                         }
                     }
-                    points.push(buf[f.v[(i + 1) % 3]].point);
-                    for win in points.windows(2) {
+                    positions.push(buf[f.v[(i + 1) % 3]].position);
+                    for win in positions.windows(2) {
                         let d = win[0].dist(win[1]);
                         low = low.min(d);
                         high = high.max(d);
@@ -511,7 +523,7 @@ mod tests {
             assert_eq!(index_num, indices.len());
             assert!(vertices
                 .iter()
-                .map(|v| v.point)
+                .map(|v| v.position)
                 .all(|p| (p.norm_l2() - radius).abs() < EPS),
                 "radius: {radius}, division: {division}"
             );

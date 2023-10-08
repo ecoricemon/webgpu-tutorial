@@ -1,11 +1,9 @@
-import { run, print_self, set_camera } from "../pkg/wasm-index.js";
+import { MyApp } from "../pkg/wasm-index.js";
 import GUIHelper from "./GUIHelper.js";
 
 // Run wasm
-await run();
-addEventListener("keydown", (ev) => {
-  print_self();
-})
+const myApp = new MyApp();
+await myApp.run();
 
 // Camera and target position contollers
 const camera_position = {
@@ -20,7 +18,7 @@ const camera_look_at = {
 };
 
 const _set_camera = () => {
-  set_camera(
+  myApp.set_camera(
     camera_position.x, camera_position.y, camera_position.z,
     camera_look_at.x, camera_look_at.y, camera_look_at.z
   );

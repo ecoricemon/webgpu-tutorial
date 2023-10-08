@@ -1,14 +1,14 @@
 #[macro_export]
 macro_rules! define_vertex {
     ([$ptype:ty; $pdim:expr], [$ctype:ty; $cdim:expr], [$ntype:ty; $ndim:expr]) => {
-        pub type Point = eg_math::prelude::Vector<$ptype, $pdim>;
+        pub type Position = eg_math::prelude::Vector<$ptype, $pdim>;
         pub type Color = eg_math::prelude::Vector<$ctype, $cdim>;
         pub type Normal = eg_math::prelude::Vector<$ntype, $ndim>;
 
         #[derive(Debug, Clone, Copy, bytemuck::Pod, bytemuck::Zeroable)]
         #[repr(C)]
         pub struct Vertex {
-            pub point: Point,
+            pub position: Position,
             pub color: Color,
             pub normal: Normal,
             // pub uv: [f32; 2],
@@ -34,20 +34,20 @@ macro_rules! define_vertex {
             pub fn vertex_attribute() -> [wgpu::VertexAttribute; 3] {
                 [
                     wgpu::VertexAttribute {
-                        // point
+                        // position
                         offset: 0,
                         shader_location: 0,
-                        format: Self::get_format(Point::get_type(), Point::get_dim()),
+                        format: Self::get_format(Position::get_type(), Position::get_dim()),
                     },
                     wgpu::VertexAttribute {
                         // color
-                        offset: std::mem::size_of::<Point>() as wgpu::BufferAddress,
+                        offset: std::mem::size_of::<Position>() as wgpu::BufferAddress,
                         shader_location: 1,
                         format: Self::get_format(Color::get_type(), Color::get_dim()),
                     },
                     wgpu::VertexAttribute {
                         // normal
-                        offset: (std::mem::size_of::<Point>() + std::mem::size_of::<Color>())
+                        offset: (std::mem::size_of::<Position>() + std::mem::size_of::<Color>())
                             as wgpu::BufferAddress,
                         shader_location: 2,
                         format: Self::get_format(Normal::get_type(), Normal::get_dim()),
@@ -65,33 +65,37 @@ macro_rules! define_vertex {
                 }
             }
 
-            pub fn new(point: Point, color: Color, normal: Normal) -> Self {
+            pub fn new(position: Position, color: Color, normal: Normal) -> Self {
                 Self {
-                    point,
+                    position,
                     color,
                     normal,
                 }
             }
 
             pub fn normalize(&mut self) {
-                self.point.normalize();
+                self.position.normalize();
                 self.normal.normalize();
             }
 
             pub fn make_unit(self) -> Self {
-                Self::new(self.point.make_unit(), self.color, self.normal.make_unit())
+                Self::new(
+                    self.position.make_unit(),
+                    self.color,
+                    self.normal.make_unit(),
+                )
             }
         }
 
         impl Default for Vertex {
             fn default() -> Self {
-                Vertex::new(Point::default(), Color::default(), Normal::default())
+                Vertex::new(Position::default(), Color::default(), Normal::default())
             }
         }
 
-        impl From<Point> for Vertex {
-            fn from(point: Point) -> Self {
-                Vertex::new(point, Color::default(), Normal::default())
+        impl From<Position> for Vertex {
+            fn from(position: Position) -> Self {
+                Vertex::new(position, Color::default(), Normal::default())
             }
         }
 
@@ -100,7 +104,7 @@ macro_rules! define_vertex {
 
             fn add(self, rhs: &'b Vertex) -> Self::Output {
                 Vertex {
-                    point: self.point + rhs.point,
+                    position: self.position + rhs.position,
                     color: self.color,
                     normal: self.normal + rhs.normal,
                 }
@@ -112,7 +116,7 @@ macro_rules! define_vertex {
 
             fn sub(self, rhs: &'b Vertex) -> Self::Output {
                 Vertex {
-                    point: self.point - rhs.point,
+                    position: self.position - rhs.position,
                     color: self.color,
                     normal: self.normal - rhs.normal,
                 }
@@ -124,7 +128,7 @@ macro_rules! define_vertex {
 
             fn mul(self, rhs: f32) -> Self::Output {
                 Vertex {
-                    point: self.point * rhs,
+                    position: self.position * rhs,
                     color: self.color,
                     normal: self.normal * rhs,
                 }
@@ -136,7 +140,7 @@ macro_rules! define_vertex {
 
             fn div(self, rhs: f32) -> Self::Output {
                 Vertex {
-                    point: self.point / rhs,
+                    position: self.position / rhs,
                     color: self.color,
                     normal: self.normal / rhs,
                 }
@@ -145,7 +149,7 @@ macro_rules! define_vertex {
 
         impl std::cmp::PartialEq for Vertex {
             fn eq(&self, other: &Self) -> bool {
-                self.point == other.point
+                self.position == other.position
                     && self.color == other.color
                     && self.normal == other.normal
             }
