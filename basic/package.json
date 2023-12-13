@@ -9,15 +9,10 @@
         "npm run clean && webpack --config webpack.prod.js",
     "start":
         "webpack serve --config webpack.dev.js",
-    "test":
-        "wasm-pack test --chrome --headless --workspace",
     "clean":
         "rimraf --glob dist **/pkg",
     "clean-all":
         "rimraf --glob dist **/pkg target node_modules"
-  },
-  "dependencies": {
-    "lil-gui": "^0.18.2"
   },
   "devDependencies": {
     "@wasm-tool/wasm-pack-plugin": "^1.7.0",

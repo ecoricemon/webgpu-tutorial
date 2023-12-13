@@ -5,8 +5,20 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Document</title>
-  <script type="module" src="index.js"></script>
-  <link rel="stylesheet" href="style.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+    }
+    html, body {
+      height: 100%;
+    }
+    canvas {
+      width: 100% !important;
+      height: 100% !important;
+      background-color: yellowgreen;
+    }
+  </style>
 </head>
 <body>
   <header>
@@ -22,6 +34,7 @@
     </section>
     <section>
       <canvas id="canvas0"></canvas>
+      <script type="module" src="index.js"></script>
     </section>
   </main>
   <footer>
