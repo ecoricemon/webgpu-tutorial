@@ -27,7 +27,7 @@ async function run(wasm) {
   } 
 
   if (backend !== undefined) {
-    const element = document.getElementById('backend');
-    element.innerHTML = 'Running ' + backend;
+    const element = document.getElementById("backend");
+    element.innerHTML = "Running " + backend;
   }
 }

@@ -101,22 +101,22 @@ impl State {
         // window
         let window = get_window();
         // canvas
-        let canvas = State::init_canvas(&window).expect_throw("Failed to get the canvas");
+        let canvas = State::init_canvas(&window).expect_throw("Failed to get canvas");
         // winit window
-        let winit_window = State::create_window(&canvas).expect_throw("Failed to create a window");
+        let winit_window = State::create_window(&canvas).expect_throw("Failed to create window");
         // wgpu instance
         let instance = State::create_instance();
         // wgpu surface
         let surface = State::create_surface(&instance, &winit_window)
-            .expect_throw("Failed to create a surface");
+            .expect_throw("Failed to create surface");
         // wgpu adapter
         let adapter = State::create_adapter(&instance, &surface)
             .await
-            .expect_throw("Failed to create an adapter");
+            .expect_throw("Failed to create adapter");
         // wgpu device and queue
         let (device, queue) = State::create_device_and_queue(&adapter)
             .await
-            .expect_throw("Failed to create a device and a queue");
+            .expect_throw("Failed to create device");
         // wgpu surface configuration
         let surface_config = State::create_surface_configuration(
             &surface,
@@ -240,7 +240,7 @@ impl State {
                     limits: if cfg!(feature = "webgl") {
                         wgpu::Limits::downlevel_webgl2_defaults()
                     } else {
-                        wgpu::Limits::default()
+                        wgpu::Limits::default() // WebGL will get error with this condition
                     },
                     label: None,
                 },
