@@ -31,4 +31,3 @@ npm run clean
 # Remove all directories produced by build and test processes
 npm run clean-all
 ```
-

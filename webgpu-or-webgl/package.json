@@ -1,0 +1,28 @@
+{
+  "author": "ecoricemon",
+  "name": "basic",
+  "version": "0.1.0",
+  "scripts": {
+    "wasm":"wasm-pack build . --out-name wasm-index",
+    "wasm-gpu": "npm run wasm -- --out-dir pkg_gpu",
+    "wasm-gl": "npm run wasm -- --out-dir pkg_gl --features webgl",
+    "bundle-dev": "webpack --config webpack.dev.js",
+    "bundle-prod": "webpack --config webpakc.prod.js",
+    "clean": "rimraf --glob dist **/pkg_*",
+    "clean-all": "rimraf --glob dist **/pkg_* target node_modules",
+
+    "build": "run-s clean wasm-gpu wasm-gl bundle-dev",
+    "build-release": "run-s clean wasm-gpu wasm-gl bundle-prod",
+    "start": "webpack serve --config webpack.dev.js"
+  },
+  "devDependencies": {
+    "@wasm-tool/wasm-pack-plugin": "^1.7.0",
+    "copy-webpack-plugin": "^11.0.0",
+    "npm-run-all": "^4.1.5",
+    "rimraf": "^5.0.1",
+    "webpack": "^5.88.2",
+    "webpack-cli": "^5.1.4",
+    "webpack-dev-server": "^4.15.1",
+    "webpack-merge": "^5.9.0"
+  }
+}
