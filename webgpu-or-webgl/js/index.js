@@ -1,16 +1,16 @@
 if (navigator.gpu) {
   // Loads wasm built on WebGPU.
-  import("../pkg_gpu/wasm-index.js").then(async (wasm) => {
+  import("../pkg_gpu/wasm-index.js").then((wasm) => {
     run(wasm);
   });
 } else {
   // Loads wasm built on WebGL.
-  import("../pkg_gl/wasm-index.js").then(async (wasm) => {
+  import("../pkg_gl/wasm-index.js").then((wasm) => {
     run(wasm);
   });
 }
 
-async function run(wasm, content) {
+async function run(wasm) {
   // Runs wasm and waits for it.
   await wasm.run();
 
