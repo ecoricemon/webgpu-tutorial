@@ -7,9 +7,9 @@
     "wasm-gpu": "npm run wasm -- --out-dir pkg_gpu",
     "wasm-gl": "npm run wasm -- --out-dir pkg_gl --features webgl",
     "bundle-dev": "webpack --config webpack.dev.js",
-    "bundle-prod": "webpack --config webpakc.prod.js",
-    "clean": "rimraf --glob dist **/pkg_*",
-    "clean-all": "rimraf --glob dist **/pkg_* target node_modules",
+    "bundle-prod": "webpack --config webpack.prod.js",
+    "clean": "rimraf --glob dist pkg_gpu pkg_gl",
+    "clean-all": "rimraf --glob dist pkg_gpu pkg_gl target node_modules",
 
     "build": "run-s clean wasm-gpu wasm-gl bundle-dev",
     "build-release": "run-s clean wasm-gpu wasm-gl bundle-prod",

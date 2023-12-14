@@ -8,7 +8,8 @@ edition = "2021"
 crate-type = ["cdylib"]
 
 [profile.release]
-opt-level = "z"
+# This makes the compiled code faster and smaller, but it makes compiling slower,
+# so it's only enabled in release mode.
 lto = true
 
 [dependencies]
@@ -17,7 +18,7 @@ wasm-bindgen-futures = "0.4.37"
 console_error_panic_hook = "0.1.7"
 console_log = "1.0.0"
 log = "0.4.19"
-wgpu = "0.16.2"
+wgpu = { version = "0.18.0", features = ["naga"] }
 web-sys = { version = "0.3.64", features = [
     "Window",
     "Document",
@@ -30,3 +31,4 @@ bytemuck = { version = "1.13.1", features = [
     "derive"
 ]}
 cgmath = "0.18"
+naga_oil = "0.11.0"
