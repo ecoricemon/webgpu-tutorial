@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>wgpu WebGL2 multiple canvases naive approach</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+    }
+    html, body {
+      height: 100%;
+    }
+    canvas {
+      width: 30% !important;
+      height: 40% !important;
+      background-color: yellowgreen;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <nav>
+      <ul>
+      </ul>
+    </nav>
+    <h1 class="title">wgpu WebGL2 multiple canvases naive approach</h1>
+    <!-- TODO: See https://threejs.org/manual/#en/multiple-scenes and improve -->
+  </header>
+  <main>
+    <section style="display: flex; justify-content: space-between;">
+      <canvas id="canvas0"></canvas>
+      <canvas id="canvas1"></canvas>
+      <canvas id="canvas2"></canvas>
+      <script type="module" src="index.js"></script>
+    </section>
+  </main>
+  <footer>
+  </footer>
+</body>
+</html>

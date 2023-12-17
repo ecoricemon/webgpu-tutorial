@@ -17,4 +17,5 @@ target/
 /wasm-pack.log
 .vscode/
 .idea/
-.DS_Store
+dist/
+node_modules/
