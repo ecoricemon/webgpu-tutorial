@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>wgpu WebGL2 surfaces</title>
+  <style>
+    canvas {
+      width: 30%;
+      height: 200;
+      background-color: yellowgreen;
+    }
+    .overlay {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 24px;
+      color: white;
+      background-color: rgba(0, 0, 0, 0.3);
+      padding: 10px;
+      border-radius: 5px;
+    }
+    .container {
+      position: relative;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <nav>
+      <ul>
+      </ul>
+    </nav>
+    <h1 class="title">wgpu WebGL2 surfaces</h1>
+  </header>
+  <main>
+    <!-- canvas_a and surface_a -->
+    <div class="container">
+      <canvas id="canvas_a"></canvas>
+      <div class="overlay">A</div>
+    </div>
+    <!-- canvas_b and surface_b -->
+    <div class="container">
+      <canvas id="canvas_b"></canvas>
+      <div class="overlay">B</div>
+    </div>
+    <!-- canvas_c and surface_c -->
+    <div class="container">
+      <canvas id="canvas_c"></canvas>
+      <div class="overlay">C</div>
+    </div>
+    <script type="module" src="index.js"></script>
+  </main>
+  <footer>
+  </footer>
+</body>
+</html>

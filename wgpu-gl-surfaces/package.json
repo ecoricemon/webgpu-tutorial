@@ -1,0 +1,24 @@
+{
+  "author": "ecoricemon",
+  "name": "basic",
+  "version": "0.1.0",
+  "scripts": {
+    "wasm":"wasm-pack build . --dev --out-name wasm-index --out-dir pkg",
+    "bundle": "webpack --config webpack.dev.js",
+    "clean": "rimraf --glob dist pkg",
+    "clean-all": "rimraf --glob dist pkg target node_modules",
+
+    "build": "run-s clean wasm bundle",
+    "start": "webpack serve --config webpack.dev.js"
+  },
+  "devDependencies": {
+    "@wasm-tool/wasm-pack-plugin": "^1.7.0",
+    "copy-webpack-plugin": "^11.0.0",
+    "npm-run-all": "^4.1.5",
+    "rimraf": "^5.0.1",
+    "webpack": "^5.88.2",
+    "webpack-cli": "^5.1.4",
+    "webpack-dev-server": "^4.15.1",
+    "webpack-merge": "^5.9.0"
+  }
+}

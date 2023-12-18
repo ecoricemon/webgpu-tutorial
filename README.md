@@ -1,12 +1,18 @@
 # webgpu-tutorial
 This is a WebGPU + WASM example repo.
 
-## basic
+-  basic  
 WebGPU running on WASM and bundling with Webpack.
+    > [Source code](basic/src/lib.rs)
 
-[Source code](basic/src/lib.rs)
+- composite-shader  
+Test using naga_oil to compose shader sources.
+    > [Source code](composite-shader/src/lib.rs)
 
-## webgpu-or-webgl
-Check browser support out and choose WebGPU or WebGL
+- webgpu-or-webgl  
+Check browser support out and choose WebGPU or WebGL.
+    > [Source code](webgpu-or-webgl/src/lib.rs)
 
-[Source code](webgpu-or-webgl/src/lib.rs)
+- wgpu-gl-surfaces  
+Trouble shooting for multiple surfaces of wgpu WebGL2 context.
+    > [Source code](wgpu-gl-surfaces/src/lib.rs)
