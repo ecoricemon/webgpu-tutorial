@@ -129,6 +129,12 @@ impl State {
             .await
             .unwrap();
 
+        // Explicit drop.
+        drop(surface_a);
+        drop(surface_b);
+        drop(canvas_a);
+        drop(canvas_b);
+
         // Creates surface_c, which won't work as we expected.
         let surface_c = unsafe { instance.create_surface(&canvas_c).ok().unwrap() };
         let canvas = canvas_c;
