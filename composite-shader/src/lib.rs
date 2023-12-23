@@ -341,7 +341,63 @@ impl State {
             })
         };
 
-        // With measure.
+        let by_my_wgsl = || -> wgpu::ShaderModule {
+            use my_wgsl::*;
+
+            #[wgsl_decl_struct]
+            struct UniformData {
+                mouse_move: vec2<f32>,
+                mouse_click: vec2<f32>,
+                resolution: vec2<f32>,
+                time: f32,
+            }
+
+            #[wgsl_decl_struct]
+            struct VertexInput {
+                #[location(0)] pos: vec3<f32>,
+                #[location(1)] color: vec3<f32>
+            }
+            
+            #[wgsl_decl_struct]
+            struct VertexOutput {
+                #[builtin(position)] pos: vec4<f32>,
+                #[location(1)] color: vec3<f32>
+            }
+
+            let mut builder = Builder::new();
+
+            wgsl_structs!(builder, UniformData, VertexInput, VertexOutput);
+
+            wgsl_bind!(builder, group(0) binding(0) var<uniform> uni: UniformData);
+
+            wgsl_fn!(builder,
+                #[vertex]
+                fn v_main(input: VertexInput) -> VertexOutput {
+                    var output: VertexOutput;
+                    output.pos = vec4<f32>(input.pos, 1.0);
+                    output.color = input.color;
+                    return output;
+                }
+            );
+
+            wgsl_fn!(builder,
+                #[fragment]
+                fn f_main(input: VertexOutput) -> #[location(0)] vec4<f32> {
+                    let x = select(0.0, 0.3, distance(input.pos.xy, uni.mouse_move) < 25.0);
+                    let y = select(0.0, 0.3, distance(input.pos.xy, uni.mouse_click) < 25.0);
+                    return vec4f(input.color + x - y, 1.0);
+                }
+            );
+
+            let wgsl = builder.build();
+
+            device.create_shader_module(wgpu::ShaderModuleDescriptor {
+                label: Some("Shader module"),
+                source: wgpu::ShaderSource::Wgsl(wgsl.into()),
+            })
+        };
+
+        // With measurement.
         fn with_measure (title: &str, id: &str, f: impl FnOnce() -> wgpu::ShaderModule) -> wgpu::ShaderModule {
             let s = now();
             let res = f();
@@ -351,9 +407,10 @@ impl State {
             res
         }
 
-        // Let's try both of them.
+        // Let's try all of them.
         with_measure("Creating shader module from a single file", "measure_single_file", by_single_file);
-        with_measure("Compositing shader module using naga_oil", "measure_naga_oil", by_naga_oil)
+        with_measure("Compositing shader module using naga_oil", "measure_naga_oil", by_naga_oil);
+        with_measure("Compositing shader module using my_wgsl", "measure_my_wgsl", by_my_wgsl)
     }
 
     fn create_render_pipeline(

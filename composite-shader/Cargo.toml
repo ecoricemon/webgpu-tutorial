@@ -32,3 +32,4 @@ bytemuck = { version = "1.13.1", features = [
 ]}
 cgmath = "0.18"
 naga_oil = "0.11.0"
+my-wgsl = "0.0.1"

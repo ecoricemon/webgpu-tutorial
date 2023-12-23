@@ -153,6 +153,7 @@ dependencies = [
  "console_error_panic_hook",
  "console_log",
  "log",
+ "my-wgsl",
  "naga_oil",
  "wasm-bindgen",
  "wasm-bindgen-futures",
@@ -824,6 +825,28 @@ dependencies = [
  "log",
  "wasi",
  "windows-sys 0.48.0",
+]
+
+[[package]]
+name = "my-wgsl"
+version = "0.0.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7eadaead20bef22d581f138b94eb77f498a34eb28ddb1bb0ad1b23d5a1852814"
+dependencies = [
+ "my-wgsl-macros",
+ "paste",
+ "smallvec",
+]
+
+[[package]]
+name = "my-wgsl-macros"
+version = "0.0.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "bff3866ed7e9ea4931e066c6daafe49cbb9b3ccc971a0dea3e8aa74f261ad8b7"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn 2.0.41",
 ]
 
 [[package]]
