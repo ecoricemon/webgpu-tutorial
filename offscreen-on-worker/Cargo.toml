@@ -1,0 +1,41 @@
+[package]
+name = "base"
+description = "wgpu + webpack base"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib"]
+
+[profile.release]
+opt-level = "z"
+lto = true
+
+[dependencies]
+wasm-bindgen = "0.2.87"
+wasm-bindgen-futures = "0.4.37"
+console_error_panic_hook = "0.1.7"
+console_log = "1.0.0"
+log = "0.4.19"
+wgpu = "0.19.3"
+web-sys = { version = "0.3.64", features = [
+    "Window",
+    "Document",
+    "Element",
+    "HtmlCanvasElement",
+    "OffscreenCanvas",
+    "MouseEvent",
+    "Worker",
+    "DedicatedWorkerGlobalScope",
+    "Event",
+    "MessageEvent",
+    "Blob",
+    "BlobPropertyBag",
+    "Url",
+]}
+js-sys = "0.3.64"
+bytemuck = { version = "1.13.1", features = [
+    "derive"
+]}
+cgmath = "0.18"
+raw-window-handle = "0.6.0"
