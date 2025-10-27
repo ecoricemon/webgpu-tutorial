@@ -2,6 +2,7 @@ struct UniformData {
     mouse_move: vec2<f32>,
     mouse_click: vec2<f32>,
     resolution: vec2<f32>,
+    scale: f32,
     time: f32,
 }
 
@@ -27,7 +28,7 @@ fn v_main(in: VertexInput) -> VertexOutput {
 
 @fragment
 fn f_main(in: VertexOutput) -> @location(0) vec4<f32> {
-    let x = select(0.0, 0.3, distance(in.pos.xy, uni.mouse_move) < 25.0);
-    let y = select(0.0, 0.3, distance(in.pos.xy, uni.mouse_click) < 25.0);
+    let x = select(0.0, 0.3, distance(in.pos.xy, uni.mouse_move) < 25.0 * uni.scale);
+    let y = select(0.0, 0.3, distance(in.pos.xy, uni.mouse_click) < 25.0 * uni.scale);
     return vec4f(in.color + x - y, 1.0);
 }

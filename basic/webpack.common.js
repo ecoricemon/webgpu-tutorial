@@ -6,7 +6,7 @@ const dist = path.resolve(__dirname, "dist");
 
 module.exports = {
   entry: {
-    index: "./js/index.js"
+    index: "./static/index.js"
   },
   output: {
     path: dist,

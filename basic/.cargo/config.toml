@@ -1,6 +1,6 @@
 [build]
-target = "wasm32-unknown-unknown" # We will see so many errors in the "vscode's problems (based on cargo check)" without this option
+target = "wasm32-unknown-unknown"
 rustflags = [
-    "--cfg=web_sys_unstable_apis", # Enable build on top of wgpu without webgl feature
-    "--cfg=wasm_platform", # We can build without this option, but it enables hints in development
+    "--cfg=web_sys_unstable_apis",
+    "--cfg=wasm_platform",
 ]
