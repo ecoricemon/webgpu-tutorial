@@ -51,6 +51,13 @@ pub async fn run() {
             state.mousemove(x, y);
         })
     });
+    add_mouseevent_listener("#canvas0", "click", |event| {
+        STATE.with_borrow_mut(|state| {
+            let x = scaled(event.offset_x() as f64) as f32;
+            let y = scaled(event.offset_y() as f64) as f32;
+            state.mouseclick(x, y);
+        })
+    });
 
     // Runs the animation loop.
     state.request_animation_frame();
@@ -320,6 +327,10 @@ impl State {
 
     fn mousemove(&mut self, x: f32, y: f32) {
         self.uniform_data.mouse_move = [x, y];
+    }
+
+    fn mouseclick(&mut self, x: f32, y: f32) {
+        self.uniform_data.mouse_click = [x, y];
     }
 }
 

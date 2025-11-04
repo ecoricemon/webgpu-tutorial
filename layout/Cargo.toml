@@ -1,0 +1,24 @@
+[package]
+name = "layout"
+description = "An example of testing WebGPU layout requirements"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.88" # required by wgpu
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+wasm-bindgen = "0.2.104"
+wasm-bindgen-futures = "0.4.54"
+web-sys = { version = "0.3.81", features = [
+    "Window",
+    "Document",
+    "Element",
+    "HtmlCanvasElement",
+]}
+console_log = "1.0.0"
+wgpu = "27.0.1"
+console_error_panic_hook = "0.1.7"
+futures = "0.3.31"
+my-wgsl = "0.1.4"
